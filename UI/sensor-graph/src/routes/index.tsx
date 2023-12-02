@@ -7,7 +7,7 @@ type Measurements = Array<{ location: string, time: number, humidity: number, te
 
 export function routeData() {
   return createServerData$(async () => {
-    const response = await fetch("http://192.168.0.105/api/measurements/last3days");
+    const response = await fetch("http://192.168.0.105/api/measurements/lastday");
     let measurements = await response.json() as Measurements;
 
     const graphMap: Map<string, Array<{ time: number, humidity: number, temperature: number }>> = new Map();

@@ -18,6 +18,12 @@ fun Application.configureRouting() {
             call.respond<List<SensorData>>(getAllSensorData())
         }
 
+        get("/measurements/lastday") {
+            val to = System.now();
+            val from = to.minus(1.days)
+            call.respond<List<SensorData>>(getSensorData(from, to))
+        }
+
         get("/measurements/last3days") {
             val to = System.now();
             val from = to.minus(3.days)
