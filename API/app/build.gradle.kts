@@ -33,8 +33,6 @@ dependencies {
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    testRuntimeOnly("org.xerial:sqlite-jdbc:3.44.0.0")
-
     // This dependency is used by the application.
     implementation("com.google.guava:guava:32.1.1-jre")
 
@@ -49,7 +47,9 @@ dependencies {
 
     implementation("org.ktorm:ktorm-core:$ktorm_version")
     implementation("org.ktorm:ktorm-support-postgresql:$ktorm_version")
+    
     implementation("org.postgresql:postgresql:$postgresql_driver_version")
+    implementation("org.xerial:sqlite-jdbc:3.44.0.0")
     
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
 

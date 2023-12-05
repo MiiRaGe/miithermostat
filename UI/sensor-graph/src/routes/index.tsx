@@ -2,12 +2,13 @@ import { Show, untrack } from "solid-js";
 import { SensorGraphs, GraphData } from "~/components/SensorGraphs";
 import { A, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import { getLastDayMeasurementsAPIURL } from "~/API/api";
 
 type Measurements = Array<{ location: string, time: number, humidity: number, temperature_mc: number }>
 
 export function routeData() {
   return createServerData$(async () => {
-    const response = await fetch("http://192.168.0.105/api/measurements/lastday");
+    const response = await fetch(getLastDayMeasurementsAPIURL());
     let measurements = await response.json() as Measurements;
 
     const graphMap: Map<string, Array<{ time: number, humidity: number, temperature: number }>> = new Map();
