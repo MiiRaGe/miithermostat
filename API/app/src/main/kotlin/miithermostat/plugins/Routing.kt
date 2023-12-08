@@ -14,44 +14,56 @@ import kotlin.time.days
 
 fun Application.configureRouting() {
     routing {
+        post("/measurements") {
+            val sensorData = call.receive<SensorData>()
+            sensorData.save()
+            call.respondText("", status = HttpStatusCode.Created)
+        }
+
         get("/measurements") {
             call.respond<List<SensorData>>(getAllSensorData())
         }
 
         get("/measurements/lastday") {
-            val to = System.now();
-            val from = to.minus(1.days)
-            call.respond<List<SensorData>>(getSensorData(from, to))
+            val from = System.now().minus(1.days)
+            call.respond<List<SensorData>>(getSensorData(from))
         }
 
         get("/measurements/last3days") {
-            val to = System.now();
-            val from = to.minus(3.days)
-            call.respond<List<SensorData>>(getSensorData(from, to))
+            val from = System.now().minus(3.days)
+            call.respond<List<SensorData>>(getSensorData(from))
         }
 
         get("/measurements/lastweek") {         
-            val to = System.now();
-            val from = to.minus(7.days)
-            call.respond<List<SensorData>>(getSensorData(from, to))
+            val from = System.now().minus(7.days)
+            call.respond<List<SensorData>>(getSensorData(from))
         }
 
         get("/measurements/lastmonth") {
-            val to = System.now();
-            val from = to.minus(30.days)
-            call.respond<List<SensorData>>(getSensorData(from, to))
+            val from = System.now().minus(30.days)
+            call.respond<List<SensorData>>(getSensorData(from))
         }
 
-        get("/location/{location}/lastmonth") {
-            val to = System.now();
-            val from = to.minus(30.days)
-            call.respond<List<SensorData>>(getSensorData(from, to, call.parameters["location"]))
+        get("/devices/") {
+            call.respond<List<Device>>(getAllDevices())
         }
 
-        post("/measurements") {
-            val sensorData = call.receive<SensorData>()
-            sensorData.save()
+        post("/devices/") {
+            val device = call.receive<Device>()
+            device.save()
             call.respondText("", status = HttpStatusCode.Created)
+        }
+
+        get("/devices/{location}/locations/") {
+            // TODO
+        }
+
+        get("/locations/{location}/devices/") {
+            // TODO
+        }
+
+        get("/locations/{location}/data/lastmonth") {
+            // TODO
         }
     }
 }

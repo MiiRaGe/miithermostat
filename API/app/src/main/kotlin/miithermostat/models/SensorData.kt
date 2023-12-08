@@ -54,25 +54,30 @@ fun getAllSensorData(): List<SensorData> {
     }
 }
 
-fun getSensorData(from: Instant, to: Instant, location: String? = null): List<SensorData> {
+fun getSensorData(from: Instant, to: Instant? = null, location: String? = null): List<SensorData> {
     val db = getDb()
     return db.from(Conditions)
-    .select()
-    .orderBy(Conditions.time.asc())
-    .whereWithConditions{ 
-        it += Conditions.time gt convert(from)
-        it += (Conditions.time lt convert(to))
+            .select()
+            .orderBy(Conditions.time.asc())
+            .whereWithConditions {
+                it += Conditions.time gt convert(from)
+                if (to != null) {
+                    it += (Conditions.time lt convert(to))
+                }
 
-        if (location != null) {
-            it += Conditions.location eq location
-        }
-    }
-    .map { row ->
-        SensorData(
-                location = row[Conditions.location]!!,
-                temperature_mc = row[Conditions.temperature_mc]!!,
-                humidity = row[Conditions.humidity]!!,
-                time = Instant.fromEpochMilliseconds(row[Conditions.time]?.toEpochMilli() ?: 0)
-        )
-    }
+                if (location != null) {
+                    it += Conditions.location eq location
+                }
+            }
+            .map { row ->
+                SensorData(
+                        location = row[Conditions.location]!!,
+                        temperature_mc = row[Conditions.temperature_mc]!!,
+                        humidity = row[Conditions.humidity]!!,
+                        time =
+                                Instant.fromEpochMilliseconds(
+                                        row[Conditions.time]?.toEpochMilli() ?: 0
+                                )
+                )
+            }
 }

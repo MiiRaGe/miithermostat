@@ -15,6 +15,8 @@ fun Application.configureSerialization() {
             Json {
             explicitNulls = false
             prettyPrint = true
-        })
+            }
+        )
     }
+
 }

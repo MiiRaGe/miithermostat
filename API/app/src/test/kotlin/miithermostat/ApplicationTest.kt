@@ -12,12 +12,13 @@ import java.sql.DriverManager
 import kotlin.concurrent.thread
 import kotlin.test.*
 import kotlinx.serialization.json.Json
-import miithermostat.*
+import miithermostat.getDb
 import miithermostat.models.*
 import miithermostat.plugins.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.ktorm.database.Database
+import org.ktorm.dsl.*
 
 object Global {
     // Create a connection when it's first used.
@@ -53,6 +54,7 @@ class ApplicationTest {
     @Test
     fun testMeasurementsGetEmpty() = testApplication {
         val response = client.get("/measurements")
+
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
         assertEquals(data.size, 0)
@@ -89,7 +91,42 @@ class ApplicationTest {
                             )
                     )
                 }
+
         assertEquals(HttpStatusCode.Created, response.status)
         assertEquals("", response.bodyAsText())
+        val measurements = getAllSensorData()
+        assertEquals(measurements.size, 1)
+    }
+
+    @Test
+    fun testDevicesPost() = testApplication {
+        val deviceId = "a54f"
+        val response =
+                client.post("/devices/") {
+                    contentType(ContentType.Application.Json)
+                    setBody(String.format("{\"id\":\"%s\"}", deviceId))
+                }
+        client.post("/devices/") {
+                    contentType(ContentType.Application.Json)
+                    setBody(String.format("{\"id\":\"%s\"}", deviceId))
+                }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        assertEquals("", response.bodyAsText())
+        val db = getDb()
+        val devices = db.from(Devices).select().where { Devices.id eq deviceId }.map {
+            row -> Device(row[Devices.id]!!)
+        }
+        assertEquals(devices[0].id, deviceId)
+    }
+
+    @Test
+    fun testDevicesGet() = testApplication {
+        val response = client.get("/devices/")
+        
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
+        assertEquals(data.size, 1)
+        assertEquals(data[0].id, TEST_DEVICE)
     }
 }
