@@ -5,15 +5,13 @@ import kotlinx.serialization.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import org.ktorm.entity.*
-import org.sqlite.*
+import org.sqlite.SQLiteException
+import org.postgresql.util.PSQLException
 
 @Serializable
 data class Device(val id: String) {
     fun save() {
-        val db = getDb()
-        db.insert(Devices) {
-            set(it.id, id)
-        }
+        insertDevice(id)
     }
 }
 
@@ -28,8 +26,11 @@ fun insertDevice(id: String) {
             set(it.id, id)
         }
     }
-    catch (e: Exception) {
-        println("Conflict on inserting device")
+    catch (e: SQLiteException) {
+        // Ignored as InsertOrUpdate not super supported.
+    }
+    catch (e: PSQLException) {
+        // Ignored as InsertOrUpdate not super supported.
     }
 }
 

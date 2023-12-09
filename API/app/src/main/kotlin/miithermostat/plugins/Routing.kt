@@ -54,12 +54,19 @@ fun Application.configureRouting() {
             call.respondText("", status = HttpStatusCode.Created)
         }
 
-        get("/devices/{location}/locations/") {
-            // TODO
+        get("/devices/{deviceId}/locations/") {
+            val deviceId = call.parameters["deviceId"]!!
+            val location = getLocation(deviceId)
+            if (location == null) {
+                call.respond<List<String>>(listOf())    
+            } else {
+                call.respond<List<String>>(listOf(location))
+            }
         }
 
         get("/locations/{location}/devices/") {
-            // TODO
+            val location = call.parameters["location"]!!
+            call.respond<List<Device>>(getDevicesByLocation(location))    
         }
 
         get("/locations/{location}/data/lastmonth") {

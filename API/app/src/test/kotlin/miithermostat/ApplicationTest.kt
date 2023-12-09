@@ -100,7 +100,7 @@ class ApplicationTest {
 
     @Test
     fun testDevicesPost() = testApplication {
-        val deviceId = "a54f"
+        val deviceId = TEST_DEVICE4
         val response =
                 client.post("/devices/") {
                     contentType(ContentType.Application.Json)
@@ -117,7 +117,7 @@ class ApplicationTest {
         val devices = db.from(Devices).select().where { Devices.id eq deviceId }.map {
             row -> Device(row[Devices.id]!!)
         }
-        assertEquals(devices[0].id, deviceId)
+        assertEquals(deviceId, devices[0].id)
     }
 
     @Test
@@ -126,7 +126,25 @@ class ApplicationTest {
         
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
-        assertEquals(data.size, 1)
-        assertEquals(data[0].id, TEST_DEVICE)
+        assertContentEquals(listOf(TEST_DEVICE3, TEST_DEVICE, TEST_DEVICE2), data.map { device -> device.id})
+    }
+    
+    @Test
+    fun testDevicesLocationsGet() = testApplication {
+        val response = client.get(String.format("/devices/%s/locations/", TEST_DEVICE))
+        
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<String>>(response.bodyAsText())
+        assertEquals(1, data.size)
+        assertEquals(TEST_LOCATION, data[0])
+    }
+    
+    @Test
+    fun testDevicesByLocationsGet() = testApplication {
+        val response = client.get(String.format("/locations/%s/devices/", TEST_LOCATION2))
+        
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
+        assertContentEquals(listOf(TEST_DEVICE3, TEST_DEVICE2), data.map { device -> device.id})
     }
 }

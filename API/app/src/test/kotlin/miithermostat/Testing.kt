@@ -30,20 +30,24 @@ fun dropTestTables() {
 }
 
 val TEST_DEVICE = "c4d6"
+val TEST_DEVICE2 = "ffe4"
+val TEST_DEVICE3 = "acbd"
+val TEST_DEVICE4 = "cccc"
 val TEST_LOCATION = "room"
-val TEST_DEVICE2 = "afe4"
 val TEST_LOCATION2 = "room2"
 
 fun createTestData() {
     insertLocation(TEST_LOCATION)
+    insertLocation(TEST_LOCATION2)
     insertDevice(TEST_DEVICE)
-    insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)
+    insertDevice(TEST_DEVICE2)
+    insertDevice(TEST_DEVICE3)
+    insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)  
+    insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)
+    insertDeviceLocation(TEST_DEVICE3, TEST_LOCATION2)
 }
 
 fun createTestMeasurements() {
-    insertLocation(TEST_LOCATION2)
-    insertDevice(TEST_DEVICE2)
-    insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)
     SensorData(device_id = TEST_DEVICE2, temperature_mc = 200, humidity = 40, time= Instant.fromEpochMilliseconds(0)).save()
     SensorData(device_id = TEST_DEVICE, temperature_mc = 300, humidity = 20).save()
 }

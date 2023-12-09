@@ -27,3 +27,13 @@ fun insertDeviceLocation(deviceId: String, location: String) {
         set(it.location, location)
     }
 }
+
+fun getDevicesByLocation(location: String): List<Device> {
+    val db = getDb()
+    return db.from(DeviceLocation).select(DeviceLocation.device_id)
+    .where { (DeviceLocation.location eq location) }
+    .orderBy(DeviceLocation.device_id.asc())
+    .map {
+        row -> Device(row[DeviceLocation.device_id]!!)
+    }
+}
