@@ -6,6 +6,7 @@ import miithermostat.getDb
 import miithermostat.tools.convert
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
+import io.ktor.http.HttpStatusCode
 
 @Serializable
 data class SensorData(
@@ -15,13 +16,14 @@ data class SensorData(
         val time: Instant? = null,
         val location: String? = null,
 ) {
-    fun save() {
+    fun save(): HttpStatusCode {
         if (device_id == null) {
-            throw Error("Device id is missing")
+            return HttpStatusCode.NotFound
         }
         val location = getLocation(device_id)
+        println(String.format("Cannot find location for : %s", device_id))
         if (location == null) {
-            throw Error("Device has no location")
+            return HttpStatusCode.BadRequest
         }
         val db = getDb()
         db.insert(Conditions) {
@@ -30,6 +32,7 @@ data class SensorData(
             set(it.humidity, humidity)
             set(it.location, location)
         }
+        return HttpStatusCode.Created
     }
 }
 

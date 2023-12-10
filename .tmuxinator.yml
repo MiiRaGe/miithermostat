@@ -55,9 +55,9 @@ windows:
       root: './Sensor'
       layout: tiled
       panes:
-        - ./start_fake_device.py test_device1
-        - ./start_fake_device.py test_device2
-        - ./start_fake_device.py test_device3
-        - ./start_fake_device.py test_device4
-        - ./start_fake_device.py test_device5
-        - ./start_fake_device.py test_device6
+        - ./start_fake_device.py test_device1 room1
+        - ./start_fake_device.py test_device2 room1
+        - ./start_fake_device.py test_device3 room2
+        - ./start_fake_device.py test_device4 room3
+        - ./start_fake_device.py test_device5 room4
+        - ./start_fake_device.py test_device6 room5

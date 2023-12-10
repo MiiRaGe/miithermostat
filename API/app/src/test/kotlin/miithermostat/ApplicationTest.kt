@@ -12,7 +12,6 @@ import java.sql.DriverManager
 import kotlin.concurrent.thread
 import kotlin.test.*
 import kotlinx.serialization.json.Json
-import miithermostat.getDb
 import miithermostat.models.*
 import miithermostat.plugins.*
 import org.junit.jupiter.api.AfterEach
@@ -93,9 +92,25 @@ class ApplicationTest {
                 }
 
         assertEquals(HttpStatusCode.Created, response.status)
-        assertEquals("", response.bodyAsText())
+        assertEquals("Success", response.bodyAsText())
         val measurements = getAllSensorData()
         assertEquals(measurements.size, 1)
+    }
+
+    @Test
+    fun testDevicesGet() = testApplication {
+        val response = client.get("/devices/")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
+        assertContentEquals(
+                listOf(TEST_DEVICE3, TEST_DEVICE, TEST_DEVICE5, TEST_DEVICE2),
+                data.map { device -> device.id }
+        )
+        assertContentEquals(
+                listOf(TEST_LOCATION2, TEST_LOCATION, null, TEST_LOCATION2),
+                data.map { device -> device.location }
+        )
     }
 
     @Test
@@ -106,45 +121,41 @@ class ApplicationTest {
                     contentType(ContentType.Application.Json)
                     setBody(String.format("{\"id\":\"%s\"}", deviceId))
                 }
-        client.post("/devices/") {
-                    contentType(ContentType.Application.Json)
-                    setBody(String.format("{\"id\":\"%s\"}", deviceId))
-                }
 
         assertEquals(HttpStatusCode.Created, response.status)
-        assertEquals("", response.bodyAsText())
+        assertEquals("Created Device", response.bodyAsText())
         val db = getDb()
-        val devices = db.from(Devices).select().where { Devices.id eq deviceId }.map {
-            row -> Device(row[Devices.id]!!)
-        }
+        val devices =
+                db
+                .from(Devices)
+                .select()
+                .where { Devices.id eq deviceId }
+                .map { row ->
+                    Device(row[Devices.id]!!)
+                }
         assertEquals(deviceId, devices[0].id)
     }
 
     @Test
-    fun testDevicesGet() = testApplication {
-        val response = client.get("/devices/")
-        
+    fun testLocationsGet() = testApplication {
+        val response = client.get("/locations/")
+
         assertEquals(HttpStatusCode.OK, response.status)
-        val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
-        assertContentEquals(listOf(TEST_DEVICE3, TEST_DEVICE, TEST_DEVICE2), data.map { device -> device.id})
-    }
-    
-    @Test
-    fun testDevicesLocationsGet() = testApplication {
-        val response = client.get(String.format("/devices/%s/locations/", TEST_DEVICE))
-        
-        assertEquals(HttpStatusCode.OK, response.status)
-        val data = Json.decodeFromString<List<String>>(response.bodyAsText())
-        assertEquals(1, data.size)
-        assertEquals(TEST_LOCATION, data[0])
-    }
-    
-    @Test
-    fun testDevicesByLocationsGet() = testApplication {
-        val response = client.get(String.format("/locations/%s/devices/", TEST_LOCATION2))
-        
-        assertEquals(HttpStatusCode.OK, response.status)
-        val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
-        assertContentEquals(listOf(TEST_DEVICE3, TEST_DEVICE2), data.map { device -> device.id})
+        val data = Json.decodeFromString<List<Location>>(response.bodyAsText())
+        assertContentEquals(
+                listOf(TEST_LOCATION, TEST_LOCATION2),
+                data.map { location -> location.name }
+        )
+        val location1 = data[0]
+        assertContentEquals(
+                listOf(TEST_DEVICE),
+                location1.devices.map { device -> device.id }
+        )
+        val location2 = data[1]
+        assertContentEquals(
+                listOf(TEST_DEVICE3, TEST_DEVICE2),
+                location2.devices.map { device -> device.id }
+        )
+
     }
 }

@@ -16,8 +16,14 @@ fun Application.configureRouting() {
     routing {
         post("/measurements") {
             val sensorData = call.receive<SensorData>()
-            sensorData.save()
-            call.respondText("", status = HttpStatusCode.Created)
+            val statusCode = sensorData.save()
+            var text = ""
+            when(statusCode) {
+                HttpStatusCode.Created -> text = "Success"
+                HttpStatusCode.BadRequest -> text = "Device has no assigned location or not registered"
+                HttpStatusCode.NotFound -> text = "Device missing from payload"
+            }
+            call.respondText(text, status = statusCode)
         }
 
         get("/measurements") {
@@ -50,23 +56,37 @@ fun Application.configureRouting() {
 
         post("/devices/") {
             val device = call.receive<Device>()
-            device.save()
-            call.respondText("", status = HttpStatusCode.Created)
-        }
-
-        get("/devices/{deviceId}/locations/") {
-            val deviceId = call.parameters["deviceId"]!!
-            val location = getLocation(deviceId)
-            if (location == null) {
-                call.respond<List<String>>(listOf())    
-            } else {
-                call.respond<List<String>>(listOf(location))
+            val statusCode = device.save()
+            var text = ""
+            when(statusCode) {
+                HttpStatusCode.Created -> text = "Created Device"
+                HttpStatusCode.OK -> text = "Device already exists"
             }
+            call.respondText(text, status = statusCode)
         }
 
-        get("/locations/{location}/devices/") {
+        get("/locations/") {
+            call.respond<List<Location>>(getAllLocations())
+        }
+
+        post("/locations/") {
+            val location = call.receive<Location>()
+            val statusCode = location.save()
+            call.respondText("", status = statusCode)
+        }
+
+        post("/locations/{location}/devices/") {
             val location = call.parameters["location"]!!
-            call.respond<List<Device>>(getDevicesByLocation(location))    
+            val device = call.receive<Device>()
+            val statusCode = insertDeviceLocation(device.id, location)
+            
+            var text = ""
+            when(statusCode) {
+                HttpStatusCode.Created -> text = "Linked Device to Location"
+                HttpStatusCode.OK -> text = "Update Device to be linked with Location"
+                HttpStatusCode.NotFound -> text = "Location or Device not found"
+            }
+            call.respondText(text, status = statusCode)
         }
 
         get("/locations/{location}/data/lastmonth") {

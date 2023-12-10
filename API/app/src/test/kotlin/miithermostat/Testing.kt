@@ -33,6 +33,7 @@ val TEST_DEVICE = "c4d6"
 val TEST_DEVICE2 = "ffe4"
 val TEST_DEVICE3 = "acbd"
 val TEST_DEVICE4 = "cccc"
+val TEST_DEVICE5 = "eeee"
 val TEST_LOCATION = "room"
 val TEST_LOCATION2 = "room2"
 
@@ -42,6 +43,7 @@ fun createTestData() {
     insertDevice(TEST_DEVICE)
     insertDevice(TEST_DEVICE2)
     insertDevice(TEST_DEVICE3)
+    insertDevice(TEST_DEVICE5)
     insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)  
     insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)
     insertDeviceLocation(TEST_DEVICE3, TEST_LOCATION2)

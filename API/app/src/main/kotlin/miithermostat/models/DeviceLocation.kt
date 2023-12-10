@@ -3,6 +3,9 @@ package miithermostat.models
 import miithermostat.getDb
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
+import io.ktor.http.HttpStatusCode
+import org.sqlite.SQLiteException
+import org.postgresql.util.PSQLException
 
 object DeviceLocation : Table<Nothing>("device_location") {
     val device_id = varchar("device_id")
@@ -11,29 +14,53 @@ object DeviceLocation : Table<Nothing>("device_location") {
 
 fun getLocation(deviceId: String): String? {
     val db = getDb()
-    val query = db.from(DeviceLocation).select(DeviceLocation.location)
-    .where { (DeviceLocation.device_id eq deviceId) }
-    
+    val query =
+            db.from(DeviceLocation).select(DeviceLocation.location).where {
+                (DeviceLocation.device_id eq deviceId)
+            }
+
     for (row in query) {
-        return row.getString(1);
+        return row.getString(1)
     }
-    return null;
+    return null
 }
 
-fun insertDeviceLocation(deviceId: String, location: String) {
+fun insertDeviceLocation(deviceId: String, location: String): HttpStatusCode {
     val db = getDb()
-    db.insert(DeviceLocation) {
-        set(it.device_id, deviceId)
-        set(it.location, location)
+    try {
+        db.insert(DeviceLocation) {
+            set(it.device_id, deviceId)
+            set(it.location, location)
+        }
+        return HttpStatusCode.Created
+    } catch (e: SQLiteException) {
+        // Ignored as InsertOrUpdate not super supported.
+    } catch (e: PSQLException) {
+        // Ignored as InsertOrUpdate not super supported.
     }
+    try {
+        val updatedCount = db.update(DeviceLocation) {
+            set(it.location, location)
+            where {
+                it.device_id eq deviceId
+            }
+        }
+        if (updatedCount == 1) {
+            return HttpStatusCode.OK
+        }
+    } catch (e: SQLiteException) {
+        // Ignored as InsertOrUpdate not super supported.
+    } catch (e: PSQLException) {
+        // Ignored as InsertOrUpdate not super supported.
+    }
+    return HttpStatusCode.NotFound
 }
 
 fun getDevicesByLocation(location: String): List<Device> {
     val db = getDb()
-    return db.from(DeviceLocation).select(DeviceLocation.device_id)
-    .where { (DeviceLocation.location eq location) }
-    .orderBy(DeviceLocation.device_id.asc())
-    .map {
-        row -> Device(row[DeviceLocation.device_id]!!)
-    }
+    return db.from(DeviceLocation)
+            .select(DeviceLocation.device_id)
+            .where { (DeviceLocation.location eq location) }
+            .orderBy(DeviceLocation.device_id.asc())
+            .map { row -> Device(row[DeviceLocation.device_id]!!) }
 }
