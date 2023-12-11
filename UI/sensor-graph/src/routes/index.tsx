@@ -4,8 +4,6 @@ import { A, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getLastDayMeasurementsAPIURL } from "~/API/api";
 
-type Measurements = Array<{ location: string, time: number, humidity: number, temperature_mc: number }>
-
 export function routeData() {
   return createServerData$(async () => {
     const response = await fetch(getLastDayMeasurementsAPIURL());
@@ -33,31 +31,10 @@ export default function Home() {
   const serverGraphData = useRouteData<typeof routeData>();
 
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">
-        MiiThermostat
-      </h1>
+    <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <Show when={serverGraphData()} fallback={<div>Loading...</div>}>
       {(data) => <SensorGraphs data={data()} />}
       </Show>
-      <p class="mt-8">
-        Visit{" "}
-        <a
-          href="https://solidjs.com"
-          target="_blank"
-          class="text-sky-600 hover:underline"
-        >
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
-      </p>
-      <p class="my-4">
-        <span>Home</span>
-        {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
-          About Page
-        </A>{" "}
-      </p>
     </main>
   );
 }

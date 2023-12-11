@@ -21,7 +21,6 @@ data class SensorData(
             return HttpStatusCode.NotFound
         }
         val location = getLocation(device_id)
-        println(String.format("Cannot find location for : %s", device_id))
         if (location == null) {
             return HttpStatusCode.BadRequest
         }

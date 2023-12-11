@@ -4,4 +4,12 @@ function getLastDayMeasurementsAPIURL(): string {
     return `${BASE_URL}/measurements/lastday`;
 }
 
-export {getLastDayMeasurementsAPIURL}
+function getRoomsAPIURL(): string {
+    return `${BASE_URL}/locations/`
+}
+
+function getDevicesAPIURL(): string {
+    return `${BASE_URL}/devices/`
+}
+
+export {getLastDayMeasurementsAPIURL, getRoomsAPIURL, getDevicesAPIURL}
