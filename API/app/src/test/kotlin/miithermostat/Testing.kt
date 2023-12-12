@@ -36,6 +36,8 @@ val TEST_DEVICE4 = "cccc"
 val TEST_DEVICE5 = "eeee"
 val TEST_LOCATION = "room"
 val TEST_LOCATION2 = "room2"
+val LATEST_TIME_LOCATION = 601000L
+val LATEST_TIME_LOCATION2 = 600000L
 
 fun createTestData() {
     insertLocation(TEST_LOCATION)
@@ -50,6 +52,13 @@ fun createTestData() {
 }
 
 fun createTestMeasurements() {
-    SensorData(device_id = TEST_DEVICE2, temperature_mc = 200, humidity = 40, time= Instant.fromEpochMilliseconds(0)).save()
-    SensorData(device_id = TEST_DEVICE, temperature_mc = 300, humidity = 20).save()
+    for (i in 0..10) {
+        val timeMs: Long = (i * 60000).toLong()
+        val humitidy1 = 40 - i
+        val humidity2 = 25 + i
+        val temperature_mc1 = 200 + 10 * i
+        val temperature_mc2 = 305 - 10 * i
+        SensorData(device_id = TEST_DEVICE2, temperature_mc = temperature_mc1.toShort(), humidity = humitidy1.toShort(), time=Instant.fromEpochMilliseconds(timeMs)).save()
+        SensorData(device_id = TEST_DEVICE, temperature_mc = temperature_mc2.toShort(), humidity = humidity2.toShort(), time=Instant.fromEpochMilliseconds(timeMs + 1000)).save()
+    }
 }

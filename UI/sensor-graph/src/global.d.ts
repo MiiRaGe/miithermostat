@@ -4,7 +4,7 @@
 declare type Device = { id: string }
 declare type Devices = Array<Device>
 
-declare type Room = { name: string, devices: Devices }
+declare type Room = { name: string, devices: Devices, data: { time: number, humidity: number, temperature_mc: number } }
 declare type Rooms = Array<Room>
 
 declare type Measurement = { location: string, time: number, humidity: number, temperature_mc: number }

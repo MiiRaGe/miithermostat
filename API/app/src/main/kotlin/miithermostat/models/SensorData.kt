@@ -1,6 +1,7 @@
 package miithermostat.models
 
 import kotlinx.datetime.Instant
+import java.time.Instant as JavaInstant
 import kotlinx.serialization.*
 import miithermostat.getDb
 import miithermostat.tools.convert
@@ -30,6 +31,9 @@ data class SensorData(
             set(it.temperature_mc, temperature_mc)
             set(it.humidity, humidity)
             set(it.location, location)
+            if (time != null) {
+                set(it.time, JavaInstant.ofEpochMilli(time.toEpochMilliseconds()))
+            }
         }
         return HttpStatusCode.Created
     }
@@ -82,4 +86,47 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
                                 )
                 )
             }
+}
+
+fun getLatestSensorDataByLocation(): Map<String, SensorData> {
+    val sensorMap: MutableMap<String, SensorData> = mutableMapOf()
+    val db = getDb()
+    if (db.productName == "SQLite") {
+        val locations = db.from(Conditions).selectDistinct(Conditions.location).map {row -> row[Conditions.location]!!}
+        for (location: String in locations) {
+            db.from(Conditions)
+            .select(Conditions.temperature_mc, Conditions.humidity, Conditions.time)
+            .orderBy(Conditions.time.desc())
+            .where {Conditions.location eq location}
+            .limit(1).map {
+                row -> 
+                val temperature_mc = row[Conditions.temperature_mc]!!
+                val humidity = row[Conditions.humidity]!!
+                val time = Instant.fromEpochMilliseconds(
+                    row[Conditions.time]?.toEpochMilli() ?: 0
+                )
+                sensorMap.put(location, SensorData(temperature_mc = temperature_mc, humidity = humidity, time = time))
+            }
+        }
+    } else {
+        db.useConnection { conn ->
+            val sql = """
+            select distinct on (location) location, temperature_mc, humidity, time 
+            from sensor_data 
+            order by location, time desc;
+            """
+            val resultSet = conn.prepareStatement(sql).executeQuery()
+            while (resultSet.next()) {
+                val location = resultSet.getString("location")!!
+                val temperature_mc = resultSet.getShort("temperature_mc")
+                val humidity = resultSet.getShort("humidity")
+                val time = Instant.fromEpochMilliseconds(
+                    resultSet.getTimestamp("time")?.toInstant()?.toEpochMilli() ?: 0
+                )
+                sensorMap.put(location, SensorData(temperature_mc = temperature_mc, humidity = humidity, time=  time))
+
+            }
+        }
+    }
+    return sensorMap
 }

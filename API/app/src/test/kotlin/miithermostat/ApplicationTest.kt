@@ -11,6 +11,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.concurrent.thread
 import kotlin.test.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import miithermostat.models.*
 import miithermostat.plugins.*
@@ -67,15 +68,23 @@ class ApplicationTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
-        assertEquals(data.size, 2)
+        assertEquals(data.size, 22)
         val measure1 = data[0]
-        assertEquals(measure1.location, TEST_LOCATION2)
-        assertEquals(measure1.temperature_mc, 200)
-        assertEquals(measure1.humidity, 40)
+        assertEquals(TEST_LOCATION2, measure1.location)
+        assertEquals(200, measure1.temperature_mc)
+        assertEquals(40, measure1.humidity)
         val measure2 = data[1]
-        assertEquals(measure2.location, TEST_LOCATION)
-        assertEquals(measure2.temperature_mc, 300)
-        assertEquals(measure2.humidity, 20)
+        assertEquals(TEST_LOCATION, measure2.location)
+        assertEquals(305, measure2.temperature_mc)
+        assertEquals(25, measure2.humidity)
+        val measure21 = data[20]
+        assertEquals(TEST_LOCATION2, measure21.location)
+        assertEquals(300, measure21.temperature_mc)
+        assertEquals(30, measure21.humidity)
+        val measure22 = data[21]
+        assertEquals(TEST_LOCATION, measure22.location)
+        assertEquals(205, measure22.temperature_mc)
+        assertEquals(35, measure22.humidity)
     }
 
     @Test
@@ -126,11 +135,7 @@ class ApplicationTest {
         assertEquals("Created Device", response.bodyAsText())
         val db = getDb()
         val devices =
-                db
-                .from(Devices)
-                .select()
-                .where { Devices.id eq deviceId }
-                .map { row ->
+                db.from(Devices).select().where { Devices.id eq deviceId }.map { row ->
                     Device(row[Devices.id]!!)
                 }
         assertEquals(deviceId, devices[0].id)
@@ -138,24 +143,25 @@ class ApplicationTest {
 
     @Test
     fun testLocationsGet() = testApplication {
+        createTestMeasurements()
         val response = client.get("/locations/")
 
         assertEquals(HttpStatusCode.OK, response.status)
+        print(response.bodyAsText())
         val data = Json.decodeFromString<List<Location>>(response.bodyAsText())
         assertContentEquals(
                 listOf(TEST_LOCATION, TEST_LOCATION2),
                 data.map { location -> location.name }
         )
         val location1 = data[0]
-        assertContentEquals(
-                listOf(TEST_DEVICE),
-                location1.devices.map { device -> device.id }
-        )
+        assertContentEquals(listOf(TEST_DEVICE), location1.devices.map { device -> device.id })
+        assertEquals(205, location1.data?.temperature_mc)
+        assertEquals(35, location1.data?.humidity)
+        assertEquals(Instant.fromEpochMilliseconds(LATEST_TIME_LOCATION), location1.data?.time)
         val location2 = data[1]
         assertContentEquals(
                 listOf(TEST_DEVICE3, TEST_DEVICE2),
                 location2.devices.map { device -> device.id }
         )
-
     }
 }
