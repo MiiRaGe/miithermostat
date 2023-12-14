@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import { Rooms } from "~/components/Rooms";
-import { A, useRouteData } from "solid-start";
+import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getRoomsAPIURL } from "~/API/api";
 

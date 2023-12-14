@@ -4,8 +4,6 @@ import { Chart, Title, Tooltip, Legend, Colors, TimeScale } from 'chart.js'
 import { Line } from 'solid-chartjs'
 import 'chartjs-adapter-luxon'
 
-type GraphData = Array<{ location: string, data: Array<{ humidity: number, temperature: number, time: number }> }>
-
 const SensorGraphs = (props: { data: GraphData | undefined }) => {
   if (props.data == undefined) {
     return <div>Missing Graph Data</div>
@@ -79,4 +77,4 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
   )
 }
 
-export { SensorGraphs, GraphData }
+export { SensorGraphs }

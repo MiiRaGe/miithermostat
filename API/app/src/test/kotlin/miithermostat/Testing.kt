@@ -46,6 +46,7 @@ fun createTestData() {
     insertDevice(TEST_DEVICE2)
     insertDevice(TEST_DEVICE3)
     insertDevice(TEST_DEVICE5)
+    
     insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)  
     insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)
     insertDeviceLocation(TEST_DEVICE3, TEST_LOCATION2)

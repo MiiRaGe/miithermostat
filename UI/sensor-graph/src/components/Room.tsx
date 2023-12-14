@@ -3,8 +3,6 @@ import { DateTime } from 'luxon';
 
 const Room = (props: { room: Room }) => {
     const { room } = props;
-    console.log(room.data.time)
-    console.log(DateTime.fromISO(room.data.time))
     return (
         <li class="overflow-hidden rounded-xl border border-gray-200">
             <div class="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
