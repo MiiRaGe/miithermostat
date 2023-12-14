@@ -1,4 +1,4 @@
-import { For, createSignal, batch, JSXElement } from "solid-js";
+import { For, Show, batch, JSXElement } from "solid-js";
 import { Device } from "~/components/Device";
 import {
   DragDropProvider,
@@ -13,25 +13,36 @@ import {
 } from "@thisbeyond/solid-dnd";
 import { createStore } from "solid-js/store";
 
-const DraggableDevice = (props) => {
+const DraggableDevice = (props: { id: number, label: JSXElement }) => {
   const draggable = createDraggable(props.id);
-  return  <li class="px-6 py-4">
-    <div use:draggable class="inline-flex items-center cursor-grab rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-        {props.label}
-    </div>
-  </li>;
+  return (<div use:draggable class="inline-flex items-center place-content-center text-center cursor-grab rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+      {props.label}
+    </div>);
 }
 
-const Room = (props: {id: string, items: number[], getLabel: (id: number) => JSXElement}) => {
+const Room = (props: { id: string, items: number[], getLabel: (id: number) => JSXElement }) => {
   const droppable = createDroppable(props.id);
+
+  const activeClass = () => {
+    if (droppable.isActiveDroppable) {
+      return "ring-2 ring-indigo-500 ring-offset-2"
+    }
+    return "";
+  };
+
+  let titlePrefix = props.id != "unassigned"? "Location: ":"";
+
+  let extraClasses = props.id == "unassigned" ? "italic text-gray-500" : "text-gray-900";
   return (
-    <div use:droppable class="overflow-hidden rounded-md bg-white shadow">
-      <div>{props.id}</div>
-      <ul role="list" class="divide-y divide-gray-200">
-        <For each={props.items}>
-          {(item) => <DraggableDevice id={item} label={props.getLabel(item)}></DraggableDevice>}
-        </For>
-      </ul>
+    <div use:droppable class={`h-32 rounded-lg border border-gray-300 bg-white px-6 shadow-sm ${activeClass()}`}>
+      <div class="border-b border-gray-200 bg-white px-2 py-2 my-2 sm:px-6">
+        <h3 class={`text-base font-semibold leading-6 ${extraClasses}`}>{`${titlePrefix}`}{props.id}</h3>
+      </div>
+      <div class="grid grid-cols-3 gap-1 sm:grid-cols-3">
+      <For each={props.items}>
+        {(item) => <DraggableDevice id={item} label={props.getLabel(item)}></DraggableDevice>}
+      </For>
+      </div>
     </div>
   );
 };
@@ -42,19 +53,19 @@ const Devices = (props: { data: Devices | undefined }) => {
     return <div>Missing Devices Data</div>
   }
   const devices = props.data
-  const initialStore: {string: number[]} = {};
-  const unassigned = "Unassigned";
+  const initialStore: { [index: string]: number[] } = {};
+  const unassigned = "unassigned";
   const labels = new Map<number, string>();
   let count = 0
   for (let device of devices) {
     const location: string = device.location || unassigned;
-    if (initialStore[location] == undefined) {initialStore[location] = []}
+    if (initialStore[location] == undefined) { initialStore[location] = [] }
     initialStore[location].push(count)
     labels.set(count, device.id);
-    count+=1
+    count += 1
   }
   const [containers, setContainers] = createStore<Record<string, number[]>>(initialStore);
-  
+
   const getLabel = (id: number) => <span>{labels.get(id)}</span>
 
   const containerIds = () => Object.keys(containers);
@@ -111,7 +122,7 @@ const Devices = (props: { data: Devices | undefined }) => {
     const droppableContainer = isContainer(droppable.id)
       ? droppable.id
       : getContainer(droppable.id);
-    
+
     if (
       draggableContainer != droppableContainer ||
       !onlyWhenChangingContainer
@@ -128,6 +139,7 @@ const Devices = (props: { data: Devices | undefined }) => {
       });
     }
   };
+
 
   const onDragOver = ({ draggable, droppable }) => {
     if (draggable && droppable) {
@@ -148,15 +160,16 @@ const Devices = (props: { data: Devices | undefined }) => {
         collisionDetector={closestContainerOrItem}
       >
         <DragDropSensors />
-        <ul role="list" class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+        <div role="list" class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
           <For each={containerIds()}>
-            {(key) => <li class="overflow-hidden rounded-xl border border-gray-200"><Room id={key} items={containers[key]} getLabel={getLabel} /></li>}
+            {(key) => <div class="rounded-xl border border-gray-200"><Room id={key} items={containers[key]} getLabel={getLabel} /></div>}
           </For>
-        </ul>
+          <div class="grid rounded-xl h-32 border border-gray-200 place-items-center"><div>Add Room</div></div>
+        </div>
         <DragOverlay>
           {(draggable) => <div class="inline-flex items-center rounded-md cursor-grabbing bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
             {getLabel(draggable.id)}
-            </div>}
+          </div>}
         </DragOverlay>
       </DragDropProvider>
     </div>
