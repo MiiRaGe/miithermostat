@@ -7,7 +7,7 @@ import { getDevicesAPIURL } from "~/API/api";
 export function routeData() {
   return createServerData$(async () => {
     const response = await fetch(getDevicesAPIURL());
-    return await response.json() as Rooms;
+    return await response.json() as Devices;
   });
 }
 

@@ -89,8 +89,12 @@ fun Application.configureRouting() {
             call.respondText(text, status = statusCode)
         }
 
-        get("/locations/{location}/data/lastmonth") {
+        get("/locations/{location}/data") {
             // TODO
+        }
+
+        get("/assignements/") {
+            
         }
     }
 }

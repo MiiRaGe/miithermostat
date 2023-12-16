@@ -1,5 +1,4 @@
 import { For, Show, batch, JSXElement } from "solid-js";
-import { Device } from "~/components/Device";
 import {
   DragDropProvider,
   DragDropSensors,
@@ -11,6 +10,8 @@ import {
   closestCenter,
   createDraggable,
 } from "@thisbeyond/solid-dnd";
+import { Icon } from "solid-heroicons";
+import { plus } from "solid-heroicons/solid";
 import { createStore } from "solid-js/store";
 
 const DraggableDevice = (props: { id: number, label: JSXElement }) => {
@@ -34,11 +35,11 @@ const Room = (props: { id: string, items: number[], getLabel: (id: number) => JS
 
   let extraClasses = props.id == "unassigned" ? "italic text-gray-500" : "text-gray-900";
   return (
-    <div use:droppable class={`h-32 rounded-lg border border-gray-300 bg-white px-6 shadow-sm ${activeClass()}`}>
-      <div class="border-b border-gray-200 bg-white px-2 py-2 my-2 sm:px-6">
+    <div use:droppable class={`min-h-32 rounded-lg border border-gray-300 bg-white px-6 shadow-sm ${activeClass()}`}>
+      <div class="border-b border-gray-200 bg-white px-2 py-2 sm:px-6">
         <h3 class={`text-base font-semibold leading-6 ${extraClasses}`}>{`${titlePrefix}`}{props.id}</h3>
       </div>
-      <div class="grid grid-cols-3 gap-1 sm:grid-cols-3">
+      <div class="grid grid-cols-3 gap-1 sm:grid-cols-3 py-2 min-h-[48px]">
       <For each={props.items}>
         {(item) => <DraggableDevice id={item} label={props.getLabel(item)}></DraggableDevice>}
       </For>
@@ -162,9 +163,15 @@ const Devices = (props: { data: Devices | undefined }) => {
         <DragDropSensors />
         <div role="list" class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
           <For each={containerIds()}>
-            {(key) => <div class="rounded-xl border border-gray-200"><Room id={key} items={containers[key]} getLabel={getLabel} /></div>}
+            {(key) => <div class="rounded-xl"><Room id={key} items={containers[key]} getLabel={getLabel} /></div>}
           </For>
-          <div class="grid rounded-xl h-32 border border-gray-200 place-items-center"><div>Add Room</div></div>
+          <div class="grid rounded-xl min-h-[24px] border-gray-200 place-items-center">
+            <div>
+            <button type="button" class="rounded-full bg-blue-700 p-2 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              <Icon path={plus} class="h-24 w-24"/>
+            </button> 
+            </div>
+          </div>
         </div>
         <DragOverlay>
           {(draggable) => <div class="inline-flex items-center rounded-md cursor-grabbing bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
