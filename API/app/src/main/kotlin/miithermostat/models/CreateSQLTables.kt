@@ -116,12 +116,10 @@ fun createTables() {
         device_id text primary key NOT NULL,
         temperature_mc_offset smallint NOT NULL,
         humidity_offset smallint NOT NULL,
-        constraint fk_device foreign key(device_id) references device(id) on update cascade,
+        constraint fk_device foreign key(device_id) references device(id) on update cascade
     );
     """
     
     conn.prepareStatement(devicesOffsetSql).execute()
-
-    
  }
 }

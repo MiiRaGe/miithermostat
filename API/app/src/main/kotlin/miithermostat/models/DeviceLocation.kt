@@ -107,5 +107,5 @@ fun locationAssignements(): LocationAssignements {
             val name = row[Locations.name]!!
             locationMap.put(name, Location(name))
     }
-    return LocationAssignements(unassignedDevices = unassignedDevices, locations = locationMap.values)
+    return LocationAssignements(unassignedDevices = unassignedDevices, locations = locationMap.values.toMutableList())
 }
