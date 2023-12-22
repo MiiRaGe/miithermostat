@@ -1,8 +1,10 @@
 package miithermostat.models
 
 import miithermostat.getDb
+import miithermostat.models.locationAssignements
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
+import kotlinx.serialization.*
 import io.ktor.http.HttpStatusCode
 import org.sqlite.SQLiteException
 import org.postgresql.util.PSQLException
@@ -63,4 +65,47 @@ fun getDevicesByLocation(location: String): List<Device> {
             .where { (DeviceLocation.location eq location) }
             .orderBy(DeviceLocation.device_id.asc())
             .map { row -> Device(row[DeviceLocation.device_id]!!) }
+}
+
+@Serializable
+data class LocationAssignements(
+    val unassignedDevices: MutableList<String> = mutableListOf(),
+    val locations: MutableList<Location> = mutableListOf()
+)
+
+fun locationAssignements(): LocationAssignements {
+    val locationMap: MutableMap<String, Location> = mutableMapOf()
+    val unassignedDevices: MutableList<String> = mutableListOf()
+
+    val db = getDb()
+    db
+    .from(Devices)
+    .leftJoin(DeviceLocation, on = Devices.id eq DeviceLocation.device_id)
+    .select(Devices.id, DeviceLocation.location)
+    .orderBy(Devices.id.asc())
+    .map { row ->
+                val device = row[Devices.id]!!
+                val locationName = row[DeviceLocation.location]
+
+                if (locationName == null) {
+                    unassignedDevices.add(device)
+                } else {
+                    var location = locationMap.get(locationName)
+                    if (location == null) {
+                        location = Location(locationName)
+                        locationMap.put(locationName, location)
+                    }
+                    location.addDevice(Device(device))
+                }
+            }
+    db
+    .from(Locations)
+    .select(Locations.name)
+    .where { Locations.name.notInList(locationMap.keys) }
+    .map {
+        row ->
+            val name = row[Locations.name]!!
+            locationMap.put(name, Location(name))
+    }
+    return LocationAssignements(unassignedDevices = unassignedDevices, locations = locationMap.values)
 }

@@ -13,6 +13,17 @@ def measure(data_pin=RHT03_DATA, power_pin=RHT03_POWER):
     # Let the sensor boot up after being powered
 
     try:
+        data = measure_without_power(data_pin)
+
+        power_dio.value = False
+        power_dio.deinit()
+        return data
+    except Exception as e:
+        power_dio.deinit()
+        raise e
+
+def measure_without_power(data_pin=RHT03_DATA):
+    try:
         dht_device = adafruit_dht.DHT22(data_pin)
         time.sleep(1)
         dht_device.measure()
@@ -23,13 +34,9 @@ def measure(data_pin=RHT03_DATA, power_pin=RHT03_POWER):
             'temperature_mc': round(dht_device.temperature * 10),
             'humidity': round(dht_device.humidity),
         }
-
-        power_dio.value = False
-        power_dio.deinit()
+        
         dht_device.exit()
         return data
     except Exception as e:
-        power_dio.deinit()
         dht_device.exit()
         raise e
-

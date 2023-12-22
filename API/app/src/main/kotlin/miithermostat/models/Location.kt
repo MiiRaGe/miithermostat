@@ -70,5 +70,4 @@ fun getAllLocations(): List<Location> {
         } 
     }
     return locationMap.values.sortedBy { it -> it.name }
-    
 }

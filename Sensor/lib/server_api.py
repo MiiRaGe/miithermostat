@@ -45,3 +45,9 @@ def register_device(device_id):
     response = session.post("{}/devices/".format(api_base_url), json={'id': device_id})
     response.close()
     return response.status_code
+
+def add_device_to_location(device_id, location):
+    connect()
+    response = session.post("{}/locations/{}/devices/".format(api_base_url, location), json={'id': device_id})
+    response.close()
+    return response.status_code

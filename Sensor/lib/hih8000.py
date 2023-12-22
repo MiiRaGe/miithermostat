@@ -34,7 +34,7 @@ def convert(result):
     }
 
 
-def measure(scl=board.GP17, sda=board.GP16):
+def measure(scl=settings.HIH8000_SCL, sda=settings.HIH8000_SDA):
     with busio.I2C(scl, sda) as i2c:
         while not i2c.try_lock():
             pass
