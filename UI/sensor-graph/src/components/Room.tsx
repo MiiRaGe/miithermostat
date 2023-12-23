@@ -16,7 +16,7 @@ const Room = (props: { room: Room }) => {
                     </div>
                     <div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-black text-sm font-bold">Humidity</dt>
-                        <dd class="text-gray-500 text-sm">{room.data.humidity}%</dd>
+                        <dd class="text-gray-500 text-sm">{room.data.humidity_pt / 10}%</dd>
                     </div>
                     <div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-black text-sm font-bold">Last Alive</dt>

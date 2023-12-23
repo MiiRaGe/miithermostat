@@ -32,7 +32,7 @@ def measure_without_power(data_pin=RHT03_DATA):
 
         data = {
             'temperature_mc': round(dht_device.temperature * 10),
-            'humidity': round(dht_device.humidity),
+            'humidity_pt': round(dht_device.humidity * 10)
         }
         
         dht_device.exit()

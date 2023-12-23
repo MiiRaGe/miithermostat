@@ -30,7 +30,7 @@ def convert(result):
 
     return {
         'temperature_mc': round(temperature * 10),
-        'humidity': round(humidity),
+        'humidity_pt': round(humidity * 10)
     }
 
 

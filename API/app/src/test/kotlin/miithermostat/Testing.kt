@@ -18,6 +18,16 @@ fun dropTestTables() {
         conn.prepareStatement(sql).execute().toString()
         
         sql = """
+        drop table IF EXISTS sensor_data_with_offset;
+        """
+        conn.prepareStatement(sql).execute().toString()
+        
+        sql = """
+        drop table IF EXISTS devices_offset;
+        """
+        conn.prepareStatement(sql).execute().toString()
+        
+        sql = """
         drop table IF EXISTS location;
         """
         conn.prepareStatement(sql).execute().toString()
@@ -55,11 +65,11 @@ fun createTestData() {
 fun createTestMeasurements() {
     for (i in 0..10) {
         val timeMs: Long = (i * 60000).toLong()
-        val humitidy1 = 40 - i
-        val humidity2 = 25 + i
+        val humitidy1_pt = 400 - 10*i
+        val humidity2_pt = 250 + 10*i
         val temperature_mc1 = 200 + 10 * i
         val temperature_mc2 = 305 - 10 * i
-        SensorData(device_id = TEST_DEVICE2, temperature_mc = temperature_mc1.toShort(), humidity = humitidy1.toShort(), time=Instant.fromEpochMilliseconds(timeMs)).save()
-        SensorData(device_id = TEST_DEVICE, temperature_mc = temperature_mc2.toShort(), humidity = humidity2.toShort(), time=Instant.fromEpochMilliseconds(timeMs + 1000)).save()
+        SensorData(device_id = TEST_DEVICE2, temperature_mc = temperature_mc1.toShort(), humidity_pt = humitidy1_pt.toShort(), time=Instant.fromEpochMilliseconds(timeMs)).save()
+        SensorData(device_id = TEST_DEVICE, temperature_mc = temperature_mc2.toShort(), humidity_pt = humidity2_pt.toShort(), time=Instant.fromEpochMilliseconds(timeMs + 1000)).save()
     }
 }

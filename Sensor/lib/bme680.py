@@ -14,6 +14,6 @@ def measure(scl, sda):
         while True:
             yield {
                 'temperature_mc': round(bme680.temperature * 10),
-                'humidity': round(bme680.relative_humidity),
+                'humidity_pt': round(bme680.relative_humidity * 10)
             }
             

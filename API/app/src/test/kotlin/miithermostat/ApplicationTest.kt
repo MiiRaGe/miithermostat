@@ -72,19 +72,19 @@ class ApplicationTest {
         val measure1 = data[0]
         assertEquals(TEST_LOCATION2, measure1.location)
         assertEquals(200, measure1.temperature_mc)
-        assertEquals(40, measure1.humidity)
+        assertEquals(400, measure1.humidity_pt)
         val measure2 = data[1]
         assertEquals(TEST_LOCATION, measure2.location)
         assertEquals(305, measure2.temperature_mc)
-        assertEquals(25, measure2.humidity)
+        assertEquals(250, measure2.humidity_pt)
         val measure21 = data[20]
         assertEquals(TEST_LOCATION2, measure21.location)
         assertEquals(300, measure21.temperature_mc)
-        assertEquals(30, measure21.humidity)
+        assertEquals(300, measure21.humidity_pt)
         val measure22 = data[21]
         assertEquals(TEST_LOCATION, measure22.location)
         assertEquals(205, measure22.temperature_mc)
-        assertEquals(35, measure22.humidity)
+        assertEquals(350, measure22.humidity_pt)
     }
 
     @Test
@@ -94,7 +94,7 @@ class ApplicationTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                             String.format(
-                                    "{\"device_id\":\"%s\",\"humidity\":24,\"temperature_mc\":234}",
+                                    "{\"device_id\":\"%s\",\"humidity_pt\":240,\"temperature_mc\":234}",
                                     TEST_DEVICE
                             )
                     )
@@ -156,7 +156,7 @@ class ApplicationTest {
         val location1 = data[0]
         assertContentEquals(listOf(TEST_DEVICE), location1.devices.map { device -> device.id })
         assertEquals(205, location1.data?.temperature_mc)
-        assertEquals(35, location1.data?.humidity)
+        assertEquals(350, location1.data?.humidity_pt)
         assertEquals(Instant.fromEpochMilliseconds(LATEST_TIME_LOCATION), location1.data?.time)
         val location2 = data[1]
         assertContentEquals(

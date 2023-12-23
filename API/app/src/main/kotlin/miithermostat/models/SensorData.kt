@@ -13,7 +13,7 @@ import org.ktorm.schema.*
 data class SensorData(
         val device_id: String? = null,
         val temperature_mc: Short,
-        val humidity: Short,
+        val humidity_pt: Short,
         val time: Instant? = null,
         val location: String? = null,
 ) {
@@ -29,7 +29,7 @@ data class SensorData(
         db.insert(Conditions) {
             set(it.device_id, device_id)
             set(it.temperature_mc, temperature_mc)
-            set(it.humidity, humidity)
+            set(it.humidity_pt, humidity_pt)
             set(it.location, location)
             if (time != null) {
                 set(it.time, JavaInstant.ofEpochMilli(time.toEpochMilliseconds()))
@@ -39,11 +39,11 @@ data class SensorData(
         val offset = getDeviceOffset(device_id)
         if (offset != null) {
             val adjustedTemperatureMc: Short = (temperature_mc + offset.temperature_mc_offset).toShort()
-            val adjustedHumidity: Short = (humidity + offset.humidity_offset).toShort()
+            val adjustedHumidityPt: Short = (humidity_pt + offset.humidity_pt_offset).toShort()
             db.insert(AdjustedConditions) {
                 set(it.device_id, device_id)
                 set(it.temperature_mc, adjustedTemperatureMc)
-                set(it.humidity, adjustedHumidity)
+                set(it.humidity_pt, adjustedHumidityPt)
                 set(it.location, location)
                 if (time != null) {
                     set(it.time, JavaInstant.ofEpochMilli(time.toEpochMilliseconds()))
@@ -56,20 +56,20 @@ data class SensorData(
 
 data class DeviceOffset(
         val temperature_mc_offset: Short,
-        val humidity_offset: Short,
+        val humidity_pt_offset: Short,
 )
 
 object DevicesOffset : Table<Nothing>("devices_offset") {
     val device_id = varchar("device_id").primaryKey()
     val temperature_mc_offset = short("temperature_mc_offset")
-    val humidity_offset = short("humidity_offset")
+    val humidity_pt_offset = short("humidity_pt_offset")
 }
 
 object AdjustedConditions : Table<Nothing>("sensor_data_with_offset") {
     val id = int("id").primaryKey()
     val device_id = varchar("device_id")
     val temperature_mc = short("temperature_mc")
-    val humidity = short("humidity")
+    val humidity_pt = short("humidity_pt")
     val time = timestamp("time")
     val location = varchar("location")
 }
@@ -78,7 +78,7 @@ object Conditions : Table<Nothing>("sensor_data") {
     val id = int("id").primaryKey()
     val device_id = varchar("device_id")
     val temperature_mc = short("temperature_mc")
-    val humidity = short("humidity")
+    val humidity_pt = short("humidity_pt")
     val time = timestamp("time")
     val location = varchar("location")
 }
@@ -89,7 +89,7 @@ fun getAllSensorData(): List<SensorData> {
         SensorData(
                 location = row[Conditions.location]!!,
                 temperature_mc = row[Conditions.temperature_mc]!!,
-                humidity = row[Conditions.humidity]!!,
+                humidity_pt = row[Conditions.humidity_pt]!!,
                 time = Instant.fromEpochMilliseconds(row[Conditions.time]?.toEpochMilli() ?: 0)
         )
     }
@@ -114,7 +114,7 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
                 SensorData(
                         location = row[Conditions.location]!!,
                         temperature_mc = row[Conditions.temperature_mc]!!,
-                        humidity = row[Conditions.humidity]!!,
+                        humidity_pt = row[Conditions.humidity_pt]!!,
                         time =
                                 Instant.fromEpochMilliseconds(
                                         row[Conditions.time]?.toEpochMilli() ?: 0
@@ -133,13 +133,13 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
                 }
         for (location: String in locations) {
             db.from(Conditions)
-                    .select(Conditions.temperature_mc, Conditions.humidity, Conditions.time)
+                    .select(Conditions.temperature_mc, Conditions.humidity_pt, Conditions.time)
                     .orderBy(Conditions.time.desc())
                     .where { Conditions.location eq location }
                     .limit(1)
                     .map { row ->
                         val temperature_mc = row[Conditions.temperature_mc]!!
-                        val humidity = row[Conditions.humidity]!!
+                        val humidity_pt = row[Conditions.humidity_pt]!!
                         val time =
                                 Instant.fromEpochMilliseconds(
                                         row[Conditions.time]?.toEpochMilli() ?: 0
@@ -148,7 +148,7 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
                                 location,
                                 SensorData(
                                         temperature_mc = temperature_mc,
-                                        humidity = humidity,
+                                        humidity_pt = humidity_pt,
                                         time = time
                                 )
                         )
@@ -166,7 +166,7 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
             while (resultSet.next()) {
                 val location = resultSet.getString("location")!!
                 val temperature_mc = resultSet.getShort("temperature_mc")
-                val humidity = resultSet.getShort("humidity")
+                val humidity_pt = resultSet.getShort("humidity")
                 val time =
                         Instant.fromEpochMilliseconds(
                                 resultSet.getTimestamp("time")?.toInstant()?.toEpochMilli() ?: 0
@@ -175,7 +175,7 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
                         location,
                         SensorData(
                                 temperature_mc = temperature_mc,
-                                humidity = humidity,
+                                humidity_pt = humidity_pt,
                                 time = time
                         )
                 )
@@ -195,7 +195,7 @@ fun getDeviceOffset(deviceId: String): DeviceOffset? {
         ->
         DeviceOffset(
                 temperature_mc_offset = row[DevicesOffset.temperature_mc_offset]!!,
-                humidity_offset = row[DevicesOffset.humidity_offset]!!
+                humidity_pt_offset = row[DevicesOffset.humidity_pt_offset]!!
         )
     }.firstOrNull()
 }

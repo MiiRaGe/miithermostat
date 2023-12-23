@@ -10,11 +10,11 @@ export function routeData() {
     let measurements = await response.json() as Measurements;
 
     const graphMap: Map<string, Array<{ time: number, humidity: number, temperature: number }>> = new Map();
-    for (const { location, time, humidity, temperature_mc } of measurements) {
+    for (const { location, time, humidity_pt, temperature_mc } of measurements) {
       if (graphMap.get(location) == undefined) graphMap.set(location, new Array());
       graphMap.get(location)?.push({
         time: new Date(time).getTime(),
-        humidity,
+        humidity: humidity_pt / 10,
         temperature: temperature_mc / 10,
       });
     }

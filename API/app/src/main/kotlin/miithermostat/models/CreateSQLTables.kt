@@ -68,7 +68,7 @@ fun createTables() {
         "time" timestamp with time zone DEFAULT %S NOT NULL,
         device_id text NOT NULL,
         temperature_mc smallint NOT NULL,
-        humidity smallint NOT NULL,
+        humidity_pt smallint NOT NULL,
         location text NOT NULL,
         constraint fk_device foreign key(device_id) references device(id) on update cascade,
         constraint fk_location foreign key(location) references location(name) on update cascade
@@ -92,7 +92,7 @@ fun createTables() {
         "time" timestamp with time zone DEFAULT %S NOT NULL,
         device_id text NOT NULL,
         temperature_mc smallint NOT NULL,
-        humidity smallint NOT NULL,
+        humidity_pt smallint NOT NULL,
         location text NOT NULL,
         constraint fk_device foreign key(device_id) references device(id) on update cascade,
         constraint fk_location foreign key(location) references location(name) on update cascade
@@ -115,7 +115,7 @@ fun createTables() {
     CREATE TABLE IF NOT EXISTS devices_offset (
         device_id text primary key NOT NULL,
         temperature_mc_offset smallint NOT NULL,
-        humidity_offset smallint NOT NULL,
+        humidity_pt_offset smallint NOT NULL,
         constraint fk_device foreign key(device_id) references device(id) on update cascade
     );
     """

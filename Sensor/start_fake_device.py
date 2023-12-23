@@ -17,11 +17,11 @@ class fake_hih8000:
     humidity = 10
     
     def measure(self):
-        self.temperature = (self.temperature + 1) % 50
-        self.humidity = (self.humidity + 1) % 40 + 10
+        self.temperature = (self.temperature + 1) % 10 + 20
+        self.humidity = (self.humidity + 1) % 20 + 30
         return {
             'temperature_mc': round(self.temperature * 10),
-            'humidity': round(self.humidity),
+            'humidity_pt': round(self.humidity * 10),
         }
 
 class fake_microcontroller:
@@ -57,7 +57,7 @@ class local_secrets:
         WIFI_PASSWORD: 'fake_password',
         WIFI_SSID: 'fake_ssid',
         DEVICE_ID: 'a8cf',
-        API_URL: '{}/measurements'.format(API_BASE_URL),
+        API_URL: API_BASE_URL,
     }
     def get_device_id():
         return "FAKE_DEVICE"
@@ -89,8 +89,8 @@ def with_exponential_retry(func):
         status = None
         while True:
             try:
-                response = func(*args, **kwargs)
-                if (response.status_code == 502):
+                status_code = func(*args, **kwargs)
+                if (status_code == 502):
                     raise ConnectionError('Server not up yet')
                 break
             except (ConnectionError, NewConnectionError) as e:
@@ -101,17 +101,17 @@ def with_exponential_retry(func):
 
 @with_exponential_retry
 def register_device(device_id):
-    return requests.post('{}/devices/'.format(API_BASE_URL), json={'id': device_id})
+    return server_api.register_device(device_id)
 
 @with_exponential_retry
 def register_location(location_name):
-    return requests.post('{}/locations/'.format(API_BASE_URL), json={'name': location_name})
+    return requests.post('{}/locations/'.format(API_BASE_URL), json={'name': location_name}).status_code
  
 @with_exponential_retry   
 def register_device_and_location(device_id, location_name):
     register_device(device_id)
     register_location(location_name)
-    return requests.post('{}/locations/{}/devices/'.format(API_BASE_URL, location_name), json={'id': device_id})
+    return server_api.add_device_to_location(device_id, location_name)
 
 if __name__ == "__main__":
     device_id = sys.argv[1]
