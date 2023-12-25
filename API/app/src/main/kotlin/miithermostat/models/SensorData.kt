@@ -6,6 +6,8 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import miithermostat.getDb
 import miithermostat.tools.convert
+import org.sqlite.SQLiteException
+import org.postgresql.util.PSQLException
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 
@@ -26,7 +28,7 @@ data class SensorData(
             return HttpStatusCode.BadRequest
         }
         val db = getDb()
-        db.insert(Conditions) {
+        db.insert(RawConditions) {
             set(it.device_id, device_id)
             set(it.temperature_mc, temperature_mc)
             set(it.humidity_pt, humidity_pt)
@@ -40,7 +42,7 @@ data class SensorData(
         if (offset != null) {
             val adjustedTemperatureMc: Short = (temperature_mc + offset.temperature_mc_offset).toShort()
             val adjustedHumidityPt: Short = (humidity_pt + offset.humidity_pt_offset).toShort()
-            db.insert(AdjustedConditions) {
+            db.insert(Conditions) {
                 set(it.device_id, device_id)
                 set(it.temperature_mc, adjustedTemperatureMc)
                 set(it.humidity_pt, adjustedHumidityPt)
@@ -65,7 +67,7 @@ object DevicesOffset : Table<Nothing>("devices_offset") {
     val humidity_pt_offset = short("humidity_pt_offset")
 }
 
-object AdjustedConditions : Table<Nothing>("sensor_data_with_offset") {
+object Conditions : Table<Nothing>("sensor_data_with_offset") {
     val id = int("id").primaryKey()
     val device_id = varchar("device_id")
     val temperature_mc = short("temperature_mc")
@@ -74,7 +76,7 @@ object AdjustedConditions : Table<Nothing>("sensor_data_with_offset") {
     val location = varchar("location")
 }
 
-object Conditions : Table<Nothing>("sensor_data") {
+object RawConditions : Table<Nothing>("sensor_data") {
     val id = int("id").primaryKey()
     val device_id = varchar("device_id")
     val temperature_mc = short("temperature_mc")
@@ -158,15 +160,15 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
         db.useConnection { conn ->
             val sql =
                     """
-            select distinct on (location) location, temperature_mc, humidity, time 
-            from sensor_data 
+            select distinct on (location) location, temperature_mc, humidity_pt, time 
+            from sensor_data_with_offset 
             order by location, time desc;
             """
             val resultSet = conn.prepareStatement(sql).executeQuery()
             while (resultSet.next()) {
                 val location = resultSet.getString("location")!!
                 val temperature_mc = resultSet.getShort("temperature_mc")
-                val humidity_pt = resultSet.getShort("humidity")
+                val humidity_pt = resultSet.getShort("humidity_pt")
                 val time =
                         Instant.fromEpochMilliseconds(
                                 resultSet.getTimestamp("time")?.toInstant()?.toEpochMilli() ?: 0
@@ -198,4 +200,37 @@ fun getDeviceOffset(deviceId: String): DeviceOffset? {
                 humidity_pt_offset = row[DevicesOffset.humidity_pt_offset]!!
         )
     }.firstOrNull()
+}
+
+fun setDeviceOffset(deviceId: String, temperatureMcOffset: Short, humidityPtOffset: Short): HttpStatusCode {
+    val db = getDb()
+    try {
+        db.insert(DevicesOffset) {
+            set(it.device_id, deviceId)
+            set(it.temperature_mc_offset, temperatureMcOffset)
+            set(it.humidity_pt_offset, humidityPtOffset)
+        }
+        return HttpStatusCode.Created
+    } catch (e: SQLiteException) {
+        // Ignored as InsertOrUpdate not super supported.
+    } catch (e: PSQLException) {
+        // Ignored as InsertOrUpdate not super supported.
+    }
+    try {
+        val updatedCount = db.update(DevicesOffset) {
+            set(it.temperature_mc_offset, temperatureMcOffset)
+            set(it.humidity_pt_offset, humidityPtOffset)
+            where {
+                it.device_id eq deviceId
+            }
+        }
+        if (updatedCount == 1) {
+            return HttpStatusCode.OK
+        }
+    } catch (e: SQLiteException) {
+        // Ignored as InsertOrUpdate not super supported.
+    } catch (e: PSQLException) {
+        // Ignored as InsertOrUpdate not super supported.
+    }
+    return HttpStatusCode.NotFound
 }

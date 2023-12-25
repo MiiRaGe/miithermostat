@@ -53,9 +53,13 @@ fun createTestData() {
     insertLocation(TEST_LOCATION)
     insertLocation(TEST_LOCATION2)
     insertDevice(TEST_DEVICE)
+    setDeviceOffset(TEST_DEVICE, 0, 0)
     insertDevice(TEST_DEVICE2)
+    setDeviceOffset(TEST_DEVICE2, -1, -1)
     insertDevice(TEST_DEVICE3)
+    setDeviceOffset(TEST_DEVICE3, +4, +4)
     insertDevice(TEST_DEVICE5)
+    setDeviceOffset(TEST_DEVICE5, -6, -6)
     
     insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)  
     insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)

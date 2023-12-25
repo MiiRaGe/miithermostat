@@ -6,10 +6,7 @@ def measure(scl, sda):
     with busio.I2C(scl, sda) as i2c:
         bme680 = Adafruit_BME680_I2C(i2c, address= 0x76)
         bme680.sea_level_pressure = 1013.25
-
-        if (bme680.relative_humidity == 100) {
-            raise Exception('BME680 not ready yet: high humidity')
-        }
+        bme680.temperature
         
         while True:
             yield {

@@ -71,16 +71,16 @@ class ApplicationTest {
         assertEquals(data.size, 22)
         val measure1 = data[0]
         assertEquals(TEST_LOCATION2, measure1.location)
-        assertEquals(200, measure1.temperature_mc)
-        assertEquals(400, measure1.humidity_pt)
+        assertEquals(199, measure1.temperature_mc)
+        assertEquals(399, measure1.humidity_pt)
         val measure2 = data[1]
         assertEquals(TEST_LOCATION, measure2.location)
         assertEquals(305, measure2.temperature_mc)
         assertEquals(250, measure2.humidity_pt)
         val measure21 = data[20]
         assertEquals(TEST_LOCATION2, measure21.location)
-        assertEquals(300, measure21.temperature_mc)
-        assertEquals(300, measure21.humidity_pt)
+        assertEquals(299, measure21.temperature_mc)
+        assertEquals(299, measure21.humidity_pt)
         val measure22 = data[21]
         assertEquals(TEST_LOCATION, measure22.location)
         assertEquals(205, measure22.temperature_mc)
