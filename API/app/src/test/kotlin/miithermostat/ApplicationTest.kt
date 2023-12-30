@@ -113,11 +113,11 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<Device>>(response.bodyAsText())
         assertContentEquals(
-                listOf(TEST_DEVICE3, TEST_DEVICE, TEST_DEVICE5, TEST_DEVICE2),
+                listOf(TEST_DEVICE3, TEST_DEVICE6, TEST_DEVICE, TEST_DEVICE5, TEST_DEVICE2),
                 data.map { device -> device.id }
         )
         assertContentEquals(
-                listOf(TEST_LOCATION2, TEST_LOCATION, null, TEST_LOCATION2),
+                listOf(TEST_LOCATION2, null, TEST_LOCATION, null, TEST_LOCATION2),
                 data.map { device -> device.location }
         )
     }
@@ -147,7 +147,6 @@ class ApplicationTest {
         val response = client.get("/locations/")
 
         assertEquals(HttpStatusCode.OK, response.status)
-        print(response.bodyAsText())
         val data = Json.decodeFromString<List<Location>>(response.bodyAsText())
         assertContentEquals(
                 listOf(TEST_LOCATION, TEST_LOCATION2),
@@ -163,5 +162,27 @@ class ApplicationTest {
                 listOf(TEST_DEVICE3, TEST_DEVICE2),
                 location2.devices.map { device -> device.id }
         )
+    }
+
+    @Test
+    fun testOffsetPost() = testApplication {
+        val deviceId = TEST_DEVICE6
+        val response =
+                client.post(String.format("/devices/%s/offset", deviceId)) {
+                    contentType(ContentType.Application.Json)
+                    setBody(String.format("{\"temperature_mc_offset\":10,\"humidity_pt_offset\":-10}", ))
+                }
+        assertEquals(HttpStatusCode.Created, response.status)
+        assertEquals("Offset created", response.bodyAsText())
+        val db = getDb()
+        val devicesOffset =
+                db.from(DevicesOffset)
+                .select()
+                .where { DevicesOffset.device_id eq deviceId }
+                .map { row ->
+                    DeviceOffset(row[DevicesOffset.temperature_mc_offset]!!, row[DevicesOffset.humidity_pt_offset]!!)
+                }
+        assertEquals(10, devicesOffset[0].temperature_mc_offset)
+        assertEquals(-10, devicesOffset[0].humidity_pt_offset)
     }
 }

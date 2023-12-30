@@ -56,6 +56,7 @@ data class SensorData(
     }
 }
 
+@Serializable
 data class DeviceOffset(
         val temperature_mc_offset: Short,
         val humidity_pt_offset: Short,
@@ -200,6 +201,10 @@ fun getDeviceOffset(deviceId: String): DeviceOffset? {
                 humidity_pt_offset = row[DevicesOffset.humidity_pt_offset]!!
         )
     }.firstOrNull()
+}
+
+fun setDeviceOffset(deviceId: String, deviceOffset: DeviceOffset): HttpStatusCode {
+    return setDeviceOffset(deviceId, deviceOffset.temperature_mc_offset, deviceOffset.humidity_pt_offset)
 }
 
 fun setDeviceOffset(deviceId: String, temperatureMcOffset: Short, humidityPtOffset: Short): HttpStatusCode {

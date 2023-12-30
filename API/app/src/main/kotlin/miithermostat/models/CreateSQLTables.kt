@@ -6,10 +6,12 @@ fun createTables() {
     val db = getDb()
     var timeDefault = "now()"
     var createHypertables = true
+    var setPragmaForeignKey = false
 
     if (db.productName == "SQLite") {
         timeDefault = "CURRENT_TIMESTAMP"
         createHypertables = false
+        setPragmaForeignKey = true
     }
     db.useConnection { conn ->
     val deviceSql = """
@@ -121,5 +123,14 @@ fun createTables() {
     """
     
     conn.prepareStatement(devicesOffsetSql).execute()
+
+    if (setPragmaForeignKey) {
+        val pragmaSql = 
+        """
+        PRAGMA foreign_keys=on
+        """
+
+        conn.prepareStatement(pragmaSql).execute()
+    }
  }
 }

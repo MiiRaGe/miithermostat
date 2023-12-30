@@ -65,6 +65,19 @@ fun Application.configureRouting() {
             call.respondText(text, status = statusCode)
         }
 
+        post("/devices/{device}/offset") {
+            val deviceOffset = call.receive<DeviceOffset>()
+            val deviceId = call.parameters["device"]!!
+            val statusCode = setDeviceOffset(deviceId, deviceOffset)
+            var text = ""
+            when(statusCode) {
+                HttpStatusCode.Created -> text = "Offset created"
+                HttpStatusCode.OK -> text = "Offset updated"
+                HttpStatusCode.NotFound -> text = "Device not found"
+            }
+            call.respondText(text, status = statusCode)
+        }
+
         get("/locations/") {
             call.respond<List<Location>>(getAllLocations())
         }

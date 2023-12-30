@@ -31,12 +31,22 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
         },]
       },
       chartOptions: {
+        elements: {
+          point: {
+            radius: 0,
+            hitRadius: 8,
+            hoverRadius: 4,
+          }
+        },
         plugins: {
           title: {
             display: true,
             text: location,
             position: 'top',
           },
+          decimation: {
+            enabled: true,
+          }
         },
         scales: {
           x: {

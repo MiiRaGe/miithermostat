@@ -106,7 +106,11 @@ def register_device(device_id):
 @with_exponential_retry
 def register_location(location_name):
     return requests.post('{}/locations/'.format(API_BASE_URL), json={'name': location_name}).status_code
- 
+
+@with_exponential_retry
+def register_offset(device_id, temperature = 10, humidity = -10):
+    return requests.post('{}/devices/{}/offset'.format(API_BASE_URL, device_id), json={'temperature_mc_offset': temperature, 'humidity_pt_offset': humidity})
+
 @with_exponential_retry   
 def register_device_and_location(device_id, location_name):
     register_device(device_id)
@@ -119,4 +123,5 @@ if __name__ == "__main__":
         register_device_and_location(device_id, sys.argv[2])
     else:
         register_device(device_id)
+    register_offset(device_id)
     start_device(device_id)

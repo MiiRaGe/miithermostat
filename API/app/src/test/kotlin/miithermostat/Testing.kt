@@ -44,6 +44,7 @@ val TEST_DEVICE2 = "ffe4"
 val TEST_DEVICE3 = "acbd"
 val TEST_DEVICE4 = "cccc"
 val TEST_DEVICE5 = "eeee"
+val TEST_DEVICE6 = "bbbb"
 val TEST_LOCATION = "room"
 val TEST_LOCATION2 = "room2"
 val LATEST_TIME_LOCATION = 601000L
@@ -60,6 +61,7 @@ fun createTestData() {
     setDeviceOffset(TEST_DEVICE3, +4, +4)
     insertDevice(TEST_DEVICE5)
     setDeviceOffset(TEST_DEVICE5, -6, -6)
+    insertDevice(TEST_DEVICE6)
     
     insertDeviceLocation(TEST_DEVICE, TEST_LOCATION)  
     insertDeviceLocation(TEST_DEVICE2, TEST_LOCATION2)
