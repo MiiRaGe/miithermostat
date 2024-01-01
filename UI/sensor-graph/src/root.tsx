@@ -51,8 +51,8 @@ export default function Root() {
               <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                   <div class="flex items-center">
-                    <div class="hidden md:block">
-                      <div class="ml-10 flex items-baseline space-x-4">
+                    <div class="block">
+                      <div class="lg:ml-10 flex items-baseline space-x-4">
                         <A href="/" class={`${active("/")} text-white rounded-md px-3 py-2 text-sm font-medium`} aria-current="page">Map</A>
                         <A href="/rooms" class={`${active("/rooms")} text-white rounded-md px-3 py-2 text-sm font-medium`}>Rooms</A>
                         <A href="/devices" class={`${active("/devices")} text-white rounded-md px-3 py-2 text-sm font-medium`}>Devices</A>
@@ -63,7 +63,7 @@ export default function Root() {
               </div>
             </nav>
             <header class="bg-white shadow">
-              <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 hidden md:block">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">{header()}</h1>
               </div>
             </header>

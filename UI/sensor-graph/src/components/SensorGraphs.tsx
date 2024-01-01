@@ -31,6 +31,11 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
         },]
       },
       chartOptions: {
+        spanGaps: 120000,
+        responsive: true,
+        interaction: {
+          mode: 'nearest',
+        },
         elements: {
           point: {
             radius: 0,
@@ -62,8 +67,11 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
               },
             },
           },
+          y: {
+            suggestedMin: 0,
+            suggestedMax: 60,
+          }
         },
-        responsive: true,
         maintainAspectRatio: false,
       }
     }
@@ -74,7 +82,7 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
     <div>
       <For each={chartDataObjs}>
         {(chartDataObj) =>
-          <div style="width:1080px;height:500px">
+          <div class="min-h-min max-h-52 min-w-min max-w-full ml-5 mr-5 mb-5 shadow p-2">
             <Line
               data={chartDataObj.chartData}
               options={chartDataObj.chartOptions}

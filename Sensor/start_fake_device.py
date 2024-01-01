@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import random
 import requests
 import time
 from urllib3.exceptions import NewConnectionError
@@ -13,15 +14,34 @@ class fake_adafruit_requests:
         return requests
 
 class fake_hih8000:
-    temperature = 10
-    humidity = 10
+    temperature = 200
+    growing_temp = True
+    humidity = 300
+    growing_humidity = True
     
     def measure(self):
-        self.temperature = (self.temperature + 1) % 10 + 20
-        self.humidity = (self.humidity + 1) % 20 + 30
+        # Sometime don't increase of increase, 50% of the time
+        if random.getrandbits(1):
+            if self.growing_temp:
+                self.temperature += 1
+            else:
+                self.temperature -= 1
+            if self.growing_humidity:
+                self.humidity += 1
+            else:
+                self.humidity -= 1
+            if self.temperature == 300:
+                self.growing_temp = False
+            elif self.temperature == 150:
+                self.growing_temp = True
+            if self.humidity == 500:
+                self.growing_humidity = False
+            elif self.humidity == 250:
+                self.growing_humidity = True
+    
         return {
-            'temperature_mc': round(self.temperature * 10),
-            'humidity_pt': round(self.humidity * 10),
+            'temperature_mc': round(self.temperature),
+            'humidity_pt': round(self.humidity),
         }
 
 class fake_microcontroller:
