@@ -1,4 +1,4 @@
-import { For, Show, batch, JSXElement } from "solid-js";
+import { For, createSignal, batch, JSXElement } from "solid-js";
 import {
   DragDropProvider,
   DragDropSensors,
@@ -13,6 +13,7 @@ import {
 import { Icon } from "solid-heroicons";
 import { plus } from "solid-heroicons/solid";
 import { createStore } from "solid-js/store";
+import { AddRoomModal } from "./AddRoomModal";
 
 const DraggableDevice = (props: { id: number, label: JSXElement }) => {
   const draggable = createDraggable(props.id);
@@ -50,6 +51,8 @@ const Room = (props: { id: string, items: number[], getLabel: (id: number) => JS
 
 
 const Devices = (props: { data: Devices | undefined }) => {
+  const [showModal, setShowModal] = createSignal(false);
+
   if (props.data == undefined) {
     return <div>Missing Devices Data</div>
   }
@@ -165,20 +168,24 @@ const Devices = (props: { data: Devices | undefined }) => {
           <For each={containerIds()}>
             {(key) => <div class="rounded-xl"><Room id={key} items={containers[key]} getLabel={getLabel} /></div>}
           </For>
-          <div class="grid rounded-xl min-h-[24px] border-gray-200 place-items-center">
-            <div>
-            <button type="button" class="rounded-full bg-blue-700 p-2 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-              <Icon path={plus} class="h-24 w-24"/>
+          <div class="rounded-xl min-h-[12px] border-gray-200 ">
+            <div class="grid px-2 py-2 sm:px-6 min-h-32 place-items-center rounded-lg border border-dashed border-gray-300 bg-white border">
+            <button 
+             type="button"
+             class="rounded-full bg-blue-700 p-2 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+             onClick={() => setShowModal(true)}>
+              <Icon path={plus} class="h-12 w-12"/>
             </button> 
             </div>
           </div>
         </div>
         <DragOverlay>
-          {(draggable) => <div class="inline-flex items-center rounded-md cursor-grabbing bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+          {(draggable) => <div class="inline-flex items-center rounded-md cursor-grabbing bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 opacity-70">
             {getLabel(draggable.id)}
           </div>}
         </DragOverlay>
       </DragDropProvider>
+      <AddRoomModal showModal={showModal} setShowModal={setShowModal}></AddRoomModal>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { getRoomsAPIURL } from "~/API/api";
 
 export function routeData() {
   return createServerData$(async () => {
-    const response = await fetch(getRoomsAPIURL());
+    const response = await fetch(await getRoomsAPIURL());
     return await response.json() as Rooms;
   });
 }

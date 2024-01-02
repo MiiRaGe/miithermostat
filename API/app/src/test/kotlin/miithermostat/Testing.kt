@@ -1,6 +1,13 @@
 package miithermostat
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.Clock.System
+import kotlinx.datetime.DateTimeUnit
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.days
+import kotlin.time.minutes
+
 import miithermostat.getDb
 import miithermostat.models.*
 
@@ -77,5 +84,18 @@ fun createTestMeasurements() {
         val temperature_mc2 = 305 - 10 * i
         SensorData(device_id = TEST_DEVICE2, temperature_mc = temperature_mc1.toShort(), humidity_pt = humitidy1_pt.toShort(), time=Instant.fromEpochMilliseconds(timeMs)).save()
         SensorData(device_id = TEST_DEVICE, temperature_mc = temperature_mc2.toShort(), humidity_pt = humidity2_pt.toShort(), time=Instant.fromEpochMilliseconds(timeMs + 1000)).save()
+    }
+}
+
+fun createSparseMeasurements() {
+    val baseTime = System.now().minus(10.minutes)
+    for (i in 0..10) {
+        val time: Instant = baseTime.minus(i.days)
+        val humitidy1_pt = 400 - 10*i
+        val humidity2_pt = 250 + 10*i
+        val temperature_mc1 = 200 + 10 * i
+        val temperature_mc2 = 305 - 10 * i
+        SensorData(device_id = TEST_DEVICE2, temperature_mc = temperature_mc1.toShort(), humidity_pt = humitidy1_pt.toShort(), time=time).save()
+        SensorData(device_id = TEST_DEVICE, temperature_mc = temperature_mc2.toShort(), humidity_pt = humidity2_pt.toShort(), time=time).save()
     }
 }

@@ -103,7 +103,7 @@ fun createTables() {
     --
     -- Add timescaledb on the sensor_data
     --
-    %Sselect create_hypertable('sensor_data', 'time', if_not_exists => true);
+    %Sselect create_hypertable('sensor_data_with_offset', 'time', if_not_exists => true);
     """, timeDefault, if (createHypertables) "" else "--")
     
     conn.prepareStatement(sensorDataWithOffsetSql).execute()

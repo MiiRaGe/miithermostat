@@ -106,7 +106,7 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
             .whereWithConditions {
                 it += Conditions.time gt convert(from)
                 if (to != null) {
-                    it += (Conditions.time lt convert(to))
+                    it += (Conditions.time lte convert(to))
                 }
 
                 if (location != null) {

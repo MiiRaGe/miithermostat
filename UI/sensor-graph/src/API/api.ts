@@ -1,15 +1,23 @@
-const BASE_URL = process.env.API_URL; // "http://192.168.0.105/api"
+'use server';
 
-function getLastDayMeasurementsAPIURL(): string {
-    return `${BASE_URL}/measurements/lastday`;
+import server$ from "solid-start/server";
+
+const getBaseUrl = async () => {
+    return process.env.API_URL
 }
 
-function getRoomsAPIURL(): string {
-    return `${BASE_URL}/locations/`
+const serverGetBaseUrl = server$(getBaseUrl)
+
+const getLastDayMeasurementsAPIURL = async () => {
+    return `${await serverGetBaseUrl()}/measurements/lastday`;
 }
 
-function getDevicesAPIURL(): string {
-    return `${BASE_URL}/devices/`
+const getRoomsAPIURL = async () =>{
+    return `${await serverGetBaseUrl()}/locations/`
+}
+
+const getDevicesAPIURL = async () => {
+    return `${await serverGetBaseUrl()}/devices/`
 }
 
 export {getLastDayMeasurementsAPIURL, getRoomsAPIURL, getDevicesAPIURL}

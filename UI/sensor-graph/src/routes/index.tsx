@@ -1,12 +1,12 @@
 import { Show } from "solid-js";
-import { SensorGraphs, GraphData } from "~/components/SensorGraphs";
-import { A, useRouteData } from "solid-start";
+import { SensorGraphs } from "~/components/SensorGraphs";
+import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getLastDayMeasurementsAPIURL } from "~/API/api";
 
 export function routeData() {
   return createServerData$(async () => {
-    const response = await fetch(getLastDayMeasurementsAPIURL());
+    const response = await fetch(await getLastDayMeasurementsAPIURL());
     let measurements = await response.json() as Measurements;
 
     const graphMap: Map<string, Array<{ time: number, humidity: number, temperature: number }>> = new Map();

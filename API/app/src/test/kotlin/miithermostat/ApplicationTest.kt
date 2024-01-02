@@ -88,6 +88,44 @@ class ApplicationTest {
     }
 
     @Test
+    fun testMeasurementsGetLastDayData() = testApplication {
+        createSparseMeasurements()
+
+        val response = client.get("/measurements/lastday")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
+        assertEquals(2, data.size)
+        val measure1 = data[0]
+        assertEquals(TEST_LOCATION2, measure1.location)
+        assertEquals(199, measure1.temperature_mc)
+        assertEquals(399, measure1.humidity_pt)
+        val measure2 = data[1]
+        assertEquals(TEST_LOCATION, measure2.location)
+        assertEquals(305, measure2.temperature_mc)
+        assertEquals(250, measure2.humidity_pt)
+    }
+
+    @Test
+    fun testMeasurementsGetLast3DaysData() = testApplication {
+        createSparseMeasurements()
+
+        val response = client.get("/measurements/last3days")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
+        assertEquals(6, data.size)
+        val measure1 = data[0]
+        assertEquals(TEST_LOCATION2, measure1.location)
+        assertEquals(219, measure1.temperature_mc)
+        assertEquals(379, measure1.humidity_pt)
+        val measure2 = data[1]
+        assertEquals(TEST_LOCATION, measure2.location)
+        assertEquals(285, measure2.temperature_mc)
+        assertEquals(270, measure2.humidity_pt)
+    }
+
+    @Test
     fun testMeasurementsPost() = testApplication {
         val response =
                 client.post("/measurements") {
