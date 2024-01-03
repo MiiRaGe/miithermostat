@@ -18,12 +18,15 @@ import miithermostat.plugins.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.ktorm.database.Database
+import org.ktorm.support.postgresql.PostgreSqlDialect
 import org.ktorm.dsl.*
 
 private val TEST_DB_HOST = System.getenv("TEST_DB_HOST")
 private val TEST_DB_NAME = System.getenv("TEST_DB_NAME")
 private val TEST_DB_USER = System.getenv("TEST_DB_USER")
 private val TEST_DB_PASSWORD = System.getenv("TEST_DB_PASSWORD")
+
+
 private val db = Database.connect(
             url = "jdbc:postgresql://${TEST_DB_HOST}/${TEST_DB_NAME}",
             user = TEST_DB_USER,
@@ -87,7 +90,6 @@ class ApplicationTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
-        data.forEach { System.out.println(it) }
         assertEquals(2, data.size)
         val measure2 = data[0]
         assertEquals(TEST_LOCATION, measure2.location)

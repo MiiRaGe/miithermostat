@@ -118,5 +118,6 @@ fun createTables() {
     """
     
     conn.prepareStatement(devicesOffsetSql).execute()
+    System.out.print("TEST")
  }
 }

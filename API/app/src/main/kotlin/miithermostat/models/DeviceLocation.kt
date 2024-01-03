@@ -6,11 +6,11 @@ import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import kotlinx.serialization.*
 import io.ktor.http.HttpStatusCode
-import org.sqlite.SQLiteException
+import org.ktorm.support.postgresql.insertOrUpdate
 import org.postgresql.util.PSQLException
 
 object DeviceLocation : Table<Nothing>("device_location") {
-    val device_id = varchar("device_id")
+    val device_id = varchar("device_id").primaryKey()
     val location = varchar("location")
 }
 
@@ -30,28 +30,14 @@ fun getLocation(deviceId: String): String? {
 fun insertDeviceLocation(deviceId: String, location: String): HttpStatusCode {
     val db = getDb()
     try {
-        db.insert(DeviceLocation) {
+        db.insertOrUpdate(DeviceLocation) {
             set(it.device_id, deviceId)
             set(it.location, location)
-        }
-        return HttpStatusCode.Created
-    } catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
-    } catch (e: PSQLException) {
-        // Ignored as InsertOrUpdate not super supported.
-    }
-    try {
-        val updatedCount = db.update(DeviceLocation) {
-            set(it.location, location)
-            where {
-                it.device_id eq deviceId
+            onConflict {
+                set(it.location, location)
             }
         }
-        if (updatedCount == 1) {
-            return HttpStatusCode.OK
-        }
-    } catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
+        return HttpStatusCode.OK
     } catch (e: PSQLException) {
         // Ignored as InsertOrUpdate not super supported.
     }

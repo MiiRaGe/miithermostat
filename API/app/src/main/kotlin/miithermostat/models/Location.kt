@@ -7,7 +7,6 @@ import miithermostat.getDb
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import org.postgresql.util.PSQLException
-import org.sqlite.SQLiteException
 
 @Serializable
 data class Location(
@@ -33,8 +32,6 @@ fun insertLocation(name: String): HttpStatusCode {
         val db = getDb()
         db.insert(Locations) { set(it.name, name) }
         return HttpStatusCode.Created
-    } catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
     } catch (e: PSQLException) {
         // Ignored as InsertOrUpdate not super supported.
     }

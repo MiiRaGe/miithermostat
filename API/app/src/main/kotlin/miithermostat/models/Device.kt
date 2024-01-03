@@ -4,7 +4,7 @@ import miithermostat.getDb
 import kotlinx.serialization.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
-import org.sqlite.SQLiteException
+import org.ktorm.support.postgresql.insertOrUpdate
 import org.postgresql.util.PSQLException
 import io.ktor.http.HttpStatusCode
 
@@ -22,15 +22,14 @@ object Devices : Table<Nothing>("device") {
 fun insertDevice(id: String): HttpStatusCode {
     try {
         val db = getDb()
-        db.insert(Devices) {
+        db.insertOrUpdate(Devices) {
             set(it.id, id)
+            onConflict {
+                doNothing()
+            }
         }
         return HttpStatusCode.Created
-    }
-    catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
-    }
-    catch (e: PSQLException) {
+    } catch (e: PSQLException) {
         // Ignored as InsertOrUpdate not super supported.
     }
     return HttpStatusCode.OK
