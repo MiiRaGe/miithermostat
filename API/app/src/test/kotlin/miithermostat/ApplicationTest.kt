@@ -20,27 +20,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
-object Global {
-    // Create a connection when it's first used.
-    val connection = DriverManager.getConnection("jdbc:sqlite::memory:")
-
-    init {
-        // Add a shutdown hook to close the connection when the application exits.
-        Runtime.getRuntime().addShutdownHook(thread(start = false) { connection.close() })
-    }
-}
+private val TEST_DB_HOST = System.getenv("TEST_DB_HOST")
+private val TEST_DB_NAME = System.getenv("TEST_DB_NAME")
+private val TEST_DB_USER = System.getenv("TEST_DB_USER")
+private val TEST_DB_PASSWORD = System.getenv("TEST_DB_PASSWORD")
+private val db = Database.connect(
+            url = "jdbc:postgresql://${TEST_DB_HOST}/${TEST_DB_NAME}",
+            user = TEST_DB_USER,
+            password = TEST_DB_PASSWORD
+        )
 
 class ApplicationTest {
     @BeforeEach
     fun setUp() {
-        val db =
-                Database.connect {
-                    object : Connection by Global.connection {
-                        override fun close() {
-                            // Override the close function and do nothing, keep the connection open.
-                        }
-                    }
-                }
         setDb(db)
         createTables()
         createTestData()
@@ -95,15 +87,16 @@ class ApplicationTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
+        data.forEach { System.out.println(it) }
         assertEquals(2, data.size)
-        val measure1 = data[0]
-        assertEquals(TEST_LOCATION2, measure1.location)
-        assertEquals(199, measure1.temperature_mc)
-        assertEquals(399, measure1.humidity_pt)
-        val measure2 = data[1]
+        val measure2 = data[0]
         assertEquals(TEST_LOCATION, measure2.location)
         assertEquals(305, measure2.temperature_mc)
         assertEquals(250, measure2.humidity_pt)
+        val measure1 = data[1]
+        assertEquals(TEST_LOCATION2, measure1.location)
+        assertEquals(199, measure1.temperature_mc)
+        assertEquals(399, measure1.humidity_pt)
     }
 
     @Test
@@ -115,14 +108,14 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, response.status)
         val data = Json.decodeFromString<List<SensorData>>(response.bodyAsText())
         assertEquals(6, data.size)
-        val measure1 = data[0]
-        assertEquals(TEST_LOCATION2, measure1.location)
-        assertEquals(219, measure1.temperature_mc)
-        assertEquals(379, measure1.humidity_pt)
-        val measure2 = data[1]
+        val measure2 = data[0]
         assertEquals(TEST_LOCATION, measure2.location)
         assertEquals(285, measure2.temperature_mc)
         assertEquals(270, measure2.humidity_pt)
+        val measure1 = data[1]
+        assertEquals(TEST_LOCATION2, measure1.location)
+        assertEquals(219, measure1.temperature_mc)
+        assertEquals(379, measure1.humidity_pt)
     }
 
     @Test

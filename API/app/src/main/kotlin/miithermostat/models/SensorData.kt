@@ -6,7 +6,6 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import miithermostat.getDb
 import miithermostat.tools.convert
-import org.sqlite.SQLiteException
 import org.postgresql.util.PSQLException
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
@@ -102,7 +101,7 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
     val db = getDb()
     return db.from(Conditions)
             .select()
-            .orderBy(Conditions.time.asc())
+            .orderBy(Conditions.time.asc(), Conditions.location.asc(), Conditions.device_id.asc())
             .whereWithConditions {
                 it += Conditions.time gt convert(from)
                 if (to != null) {
@@ -129,36 +128,7 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
 fun getLatestSensorDataByLocation(): Map<String, SensorData> {
     val sensorMap: MutableMap<String, SensorData> = mutableMapOf()
     val db = getDb()
-    if (db.productName == "SQLite") {
-        val locations =
-                db.from(Conditions).selectDistinct(Conditions.location).map { row ->
-                    row[Conditions.location]!!
-                }
-        for (location: String in locations) {
-            db.from(Conditions)
-                    .select(Conditions.temperature_mc, Conditions.humidity_pt, Conditions.time)
-                    .orderBy(Conditions.time.desc())
-                    .where { Conditions.location eq location }
-                    .limit(1)
-                    .map { row ->
-                        val temperature_mc = row[Conditions.temperature_mc]!!
-                        val humidity_pt = row[Conditions.humidity_pt]!!
-                        val time =
-                                Instant.fromEpochMilliseconds(
-                                        row[Conditions.time]?.toEpochMilli() ?: 0
-                                )
-                        sensorMap.put(
-                                location,
-                                SensorData(
-                                        temperature_mc = temperature_mc,
-                                        humidity_pt = humidity_pt,
-                                        time = time
-                                )
-                        )
-                    }
-        }
-    } else {
-        db.useConnection { conn ->
+    db.useConnection { conn ->
             val sql =
                     """
             select distinct on (location) location, temperature_mc, humidity_pt, time 
@@ -184,7 +154,6 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
                 )
             }
         }
-    }
     return sensorMap
 }
 
@@ -216,8 +185,6 @@ fun setDeviceOffset(deviceId: String, temperatureMcOffset: Short, humidityPtOffs
             set(it.humidity_pt_offset, humidityPtOffset)
         }
         return HttpStatusCode.Created
-    } catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
     } catch (e: PSQLException) {
         // Ignored as InsertOrUpdate not super supported.
     }
@@ -232,8 +199,6 @@ fun setDeviceOffset(deviceId: String, temperatureMcOffset: Short, humidityPtOffs
         if (updatedCount == 1) {
             return HttpStatusCode.OK
         }
-    } catch (e: SQLiteException) {
-        // Ignored as InsertOrUpdate not super supported.
     } catch (e: PSQLException) {
         // Ignored as InsertOrUpdate not super supported.
     }

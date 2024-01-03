@@ -4,24 +4,21 @@ import miithermostat.getDb
 
 fun createTables() {
     val db = getDb()
-    var timeDefault = "now()"
-    var createHypertables = true
-    var setPragmaForeignKey = false
 
-    if (db.productName == "SQLite") {
-        timeDefault = "CURRENT_TIMESTAMP"
-        createHypertables = false
-        setPragmaForeignKey = true
-    }
     db.useConnection { conn ->
-    val deviceSql = """
+
+    val createExtension = """
     --
     -- Add timescales extensions
     --
     
     --  Make sure this is ran by whomever created the DB
     -- create extension IF NOT EXISTS timescaledb_toolkit; TODO: Find a way to compile on RPi5?
+    create extension IF NOT EXISTS timescaledb;
+    """
+    conn.prepareStatement(createExtension).execute()
 
+    val deviceSql = """
     --
     -- Name: device; Type: TABLE; Schema: public; Owner: postgres
     --
@@ -60,14 +57,13 @@ fun createTables() {
     """
     conn.prepareStatement(deviceLocationSql).execute()
 
-    val sensorDataSql = String.format(
-    """
+    val sensorDataSql = """
     --
     -- Name: Table the sensor data will be stored.
     --
     
     CREATE TABLE IF NOT EXISTS sensor_data (
-        "time" timestamp with time zone DEFAULT %S NOT NULL,
+        "time" timestamp with time zone DEFAULT now() NOT NULL,
         device_id text NOT NULL,
         temperature_mc smallint NOT NULL,
         humidity_pt smallint NOT NULL,
@@ -79,19 +75,18 @@ fun createTables() {
     --
     -- Add timescaledb on the sensor_data
     --
-    %Sselect create_hypertable('sensor_data', 'time', if_not_exists => true);
-    """, timeDefault, if (createHypertables) "" else "--")
+    select create_hypertable('sensor_data', 'time', if_not_exists => true);
+    """
     
     conn.prepareStatement(sensorDataSql).execute()
 
-    val sensorDataWithOffsetSql = String.format(
-    """
+    val sensorDataWithOffsetSql ="""
     --
     -- Name: Table the adjusted sensor data will be stored.
     --
     
     CREATE TABLE IF NOT EXISTS sensor_data_with_offset (
-        "time" timestamp with time zone DEFAULT %S NOT NULL,
+        "time" timestamp with time zone DEFAULT now() NOT NULL,
         device_id text NOT NULL,
         temperature_mc smallint NOT NULL,
         humidity_pt smallint NOT NULL,
@@ -103,8 +98,8 @@ fun createTables() {
     --
     -- Add timescaledb on the sensor_data
     --
-    %Sselect create_hypertable('sensor_data_with_offset', 'time', if_not_exists => true);
-    """, timeDefault, if (createHypertables) "" else "--")
+    select create_hypertable('sensor_data_with_offset', 'time', if_not_exists => true);
+    """
     
     conn.prepareStatement(sensorDataWithOffsetSql).execute()
 
@@ -123,14 +118,5 @@ fun createTables() {
     """
     
     conn.prepareStatement(devicesOffsetSql).execute()
-
-    if (setPragmaForeignKey) {
-        val pragmaSql = 
-        """
-        PRAGMA foreign_keys=on
-        """
-
-        conn.prepareStatement(pragmaSql).execute()
-    }
  }
 }
