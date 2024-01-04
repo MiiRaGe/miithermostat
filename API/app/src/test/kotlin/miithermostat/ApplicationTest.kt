@@ -218,4 +218,25 @@ class ApplicationTest {
         assertEquals(10, devicesOffset[0].temperature_mc_offset)
         assertEquals(-10, devicesOffset[0].humidity_pt_offset)
     }
+
+    @Test
+    fun testLocationAssignements() = testApplication {
+        // Adding unassigned device and empty room
+        insertDevice(TEST_DEVICE4)
+        insertLocation(TEST_LOCATION3)
+
+        val response =
+                client.get("/assignements/") {
+                    contentType(ContentType.Application.Json)
+                }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val data = Json.decodeFromString<LocationAssignements>(response.bodyAsText())
+        assertEquals<MutableList<Location>>(mutableListOf(
+            Location(name=TEST_LOCATION, devices=mutableListOf(Device(id=TEST_DEVICE, location=TEST_LOCATION)), data=null),
+            Location(name=TEST_LOCATION2, devices=mutableListOf(Device(id=TEST_DEVICE3, location=TEST_LOCATION2), Device(id=TEST_DEVICE2, location=TEST_LOCATION2)), data=null),
+            Location(name=TEST_LOCATION3, devices=mutableListOf(), data=null)
+        ), data.locations)
+        assertEquals(mutableListOf(Device(TEST_DEVICE6), Device(TEST_DEVICE4), Device(TEST_DEVICE5)), data.unassignedDevices)
+    }
 }

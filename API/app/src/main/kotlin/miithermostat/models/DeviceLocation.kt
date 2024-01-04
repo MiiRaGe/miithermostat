@@ -1,7 +1,6 @@
 package miithermostat.models
 
 import miithermostat.getDb
-import miithermostat.models.locationAssignements
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import kotlinx.serialization.*
@@ -55,43 +54,43 @@ fun getDevicesByLocation(location: String): List<Device> {
 
 @Serializable
 data class LocationAssignements(
-    val unassignedDevices: MutableList<String> = mutableListOf(),
+    val unassignedDevices: MutableList<Device> = mutableListOf(),
     val locations: MutableList<Location> = mutableListOf()
 )
 
-fun locationAssignements(): LocationAssignements {
+fun getLocationAssignements(): LocationAssignements {
     val locationMap: MutableMap<String, Location> = mutableMapOf()
-    val unassignedDevices: MutableList<String> = mutableListOf()
+    val unassignedDevices: MutableList<Device> = mutableListOf()
 
     val db = getDb()
-    db
-    .from(Devices)
-    .leftJoin(DeviceLocation, on = Devices.id eq DeviceLocation.device_id)
-    .select(Devices.id, DeviceLocation.location)
-    .orderBy(Devices.id.asc())
-    .map { row ->
-                val device = row[Devices.id]!!
-                val locationName = row[DeviceLocation.location]
-
-                if (locationName == null) {
-                    unassignedDevices.add(device)
-                } else {
-                    var location = locationMap.get(locationName)
-                    if (location == null) {
-                        location = Location(locationName)
-                        locationMap.put(locationName, location)
-                    }
-                    location.addDevice(Device(device))
-                }
-            }
-    db
-    .from(Locations)
-    .select(Locations.name)
-    .where { Locations.name.notInList(locationMap.keys) }
-    .map {
-        row ->
-            val name = row[Locations.name]!!
-            locationMap.put(name, Location(name))
+    val rowSet = db.useConnection { conn ->
+        conn.prepareStatement("""
+        select device.id as device_id, "location"."name" as location_name
+        from device_location
+        full outer join device on device.id = device_location.device_id
+        full outer join location on location.name = device_location.location
+        order by "location"."name", device.id
+        """).executeQuery()
     }
+    while (rowSet.next()) {
+        val device = rowSet.getString("device_id")
+        val locationName = rowSet.getString("location_name")
+
+        if (locationName == null) {
+            if (device != null) {
+                unassignedDevices.add(Device(device))
+            }
+        } else {
+            var location = locationMap.get(locationName);
+            if (location == null) {
+                location = Location(locationName)
+                locationMap.put(locationName, location)
+            }
+            if (device != null) {
+                location.addDevice(Device(device, locationName))    
+            }
+        }
+    }
+    rowSet.close()
     return LocationAssignements(unassignedDevices = unassignedDevices, locations = locationMap.values.toMutableList())
 }

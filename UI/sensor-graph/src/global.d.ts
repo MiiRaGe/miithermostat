@@ -11,3 +11,5 @@ declare type Measurement = { location: string, time: number, humidity_pt: number
 declare type Measurements = Array<Measurement>
 
 declare type GraphData = Array<{ location: string, data: Array<{ humidity: number, temperature: number, time: number }> }>
+
+declare type Assignements = { unassignedDevices: Devices, locations: Rooms }

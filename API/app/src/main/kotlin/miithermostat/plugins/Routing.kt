@@ -107,7 +107,7 @@ fun Application.configureRouting() {
         }
 
         get("/assignements/") {
-            
+            call.respond<LocationAssignements>(getLocationAssignements())
         }
     }
 }

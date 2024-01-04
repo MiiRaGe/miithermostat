@@ -1,6 +1,7 @@
 import { Portal } from "solid-js/web";
-import { Show, createSignal } from "solid-js";
+import { Show, batch, createSignal } from "solid-js";
 import { getRoomsAPIURL } from "~/API/api";
+import { refetchRouteData } from "solid-start";
 
 export const AddRoomModal = (props) => {
     const [name, setName] = createSignal("")
@@ -18,8 +19,12 @@ export const AddRoomModal = (props) => {
             setDisabled(false)
             setError(`${response.text()}`)
         } else {
-            setDisabled(false)
-            props.setShowModal(false)
+            batch(() => {
+                setName("")
+                props.refetch()
+                setDisabled(false)
+                props.setShowModal(false)
+            })
         }
     }
 

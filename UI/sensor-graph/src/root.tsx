@@ -29,8 +29,8 @@ export default function Root() {
       case "/rooms": { 
          return "Rooms";
       } 
-      case "/devices": {
-        return "Devices";
+      case "/assignements": {
+        return "Device and Location assignements";
       }
       default: { 
         return "";
@@ -55,7 +55,7 @@ export default function Root() {
                       <div class="lg:ml-10 flex items-baseline space-x-4">
                         <A href="/" class={`${active("/")} text-white rounded-md px-3 py-2 text-sm font-medium`} aria-current="page">Map</A>
                         <A href="/rooms" class={`${active("/rooms")} text-white rounded-md px-3 py-2 text-sm font-medium`}>Rooms</A>
-                        <A href="/devices" class={`${active("/devices")} text-white rounded-md px-3 py-2 text-sm font-medium`}>Devices</A>
+                        <A href="/assignements" class={`${active("/assignements")} text-white rounded-md px-3 py-2 text-sm font-medium`}>Assignements</A>
                       </div>
                     </div>
                   </div>

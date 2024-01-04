@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <Show when={serverGraphData()} fallback={<div>Loading...</div>}>
-      {(data) => <SensorGraphs data={data()} />}
+      {(data) => <SensorGraphs data={data()}/>}
       </Show>
     </main>
   );

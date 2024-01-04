@@ -20,4 +20,8 @@ const getDevicesAPIURL = async () => {
     return `${await serverGetBaseUrl()}/devices/`
 }
 
-export {getLastDayMeasurementsAPIURL, getRoomsAPIURL, getDevicesAPIURL}
+const getAssignementsAPIURL = async () => {
+    return `${await serverGetBaseUrl()}/assignements/`
+}
+
+export {getLastDayMeasurementsAPIURL, getRoomsAPIURL, getDevicesAPIURL, getAssignementsAPIURL}
