@@ -1,4 +1,4 @@
-import { For, Show, createSignal, batch, JSXElement, createResource } from "solid-js";
+import { For, createSignal, batch, JSXElement, createResource } from "solid-js";
 import {
   DragDropProvider,
   DragDropSensors,
@@ -13,8 +13,6 @@ import { Icon } from "solid-heroicons";
 import { plus } from "solid-heroicons/solid";
 import { createStore } from "solid-js/store";
 import { AddRoomModal } from "./AddRoomModal";
-import { getAssignementsAPIURL } from "~/API/api";
-import assignementsPage from "~/routes/assignements";
 
 const DraggableDevice = (props: { id: number, label: JSXElement }) => {
   const draggable = createDraggable(props.id);
@@ -50,17 +48,8 @@ const Room = (props: { id: string, items: number[], getLabel: (id: number) => JS
   );
 };
 
-export async function fetchAssignements() {
-  const response = await fetch(await getAssignementsAPIURL());
-  return await response.json() as Assignements;
-}
-
-
-
-const Assignements = () => {
-  const [assignements, setAssignements] = createSignal({unassignedDevices: [], locations: []} as Assignements)
+const Assignements = (props) => {
   const [showModal, setShowModal] = createSignal(false);
-  const [serverDevices, { mutate, refetch }] = createResource("assignements", fetchAssignements)
 
   const initialStore: { [index: string]: number[] } = {};
   const [containers, setContainers] = createStore<Record<string, number[]>>(initialStore);
@@ -68,19 +57,18 @@ const Assignements = () => {
   const unassigned = "unassigned";
   const labels = new Map<number, string>();
 
-  const setData = (serverData) => {
+  const setData = (serverData: Assignements) => {
     console.log("Re-setting containers")
     batch(() => {
-      setAssignements(serverData)
       setContainers(unassigned, [])
       let count = 0
-      for (let device of assignements().unassignedDevices) {
+      for (let device of serverData.unassignedDevices) {
         setContainers(unassigned, (items) => [...items, count])
         labels.set(count, device.id);
         count += 1
       }
 
-      for (let location of assignements().locations) {
+      for (let location of serverData.locations) {
         setContainers(location.name, (items) => [])
         if (!location.devices) { continue }
         for (let device of location.devices) {
@@ -90,11 +78,6 @@ const Assignements = () => {
         }
       }
     })
-  }
-
-  const serverData = serverDevices();
-  if (serverData != undefined) {
-    setData(serverData)
   }
 
   const getLabel = (id: number) => <span>{labels.get(id)}</span>
@@ -185,14 +168,15 @@ const Assignements = () => {
   };
 
   const refreshAssignements = async () => {
-    const assignements = await refetch();
+    const assignements = await props.refetch();
     if (assignements) {
       setData(assignements)
     }
   }
-  return (
-    <Show when={assignements()} fallback={<div>Loading...</div>}>
-      {(data) => <div>
+
+  setData(props.data)
+
+  return <div>
         <DragDropProvider
           onDragOver={onDragOver}
           onDragEnd={onDragEnd}
@@ -204,7 +188,7 @@ const Assignements = () => {
               {(key) => <div class="rounded-xl"><Room id={key} items={containers[key]} getLabel={getLabel} /></div>}
             </For>
             <div class="rounded-xl min-h-[12px] border-gray-200 ">
-              <div class="grid px-2 py-2 sm:px-6 min-h-32 place-items-center rounded-lg border border-dashed border-gray-300 bg-white border">
+              <div class="grid px-2 py-2 sm:px-6 min-h-32 place-items-center rounded-lg border border-dashed border-gray-300 bg-white">
                 <button
                   type="button"
                   class="rounded-full bg-blue-700 p-2 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -221,11 +205,7 @@ const Assignements = () => {
           </DragOverlay>
         </DragDropProvider>
         <AddRoomModal showModal={showModal} setShowModal={setShowModal} refetch={refreshAssignements}></AddRoomModal>
-      </div>
-      }
-    </Show>
-
-  );
+      </div>;
 }
 
 export { Assignements }
