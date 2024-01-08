@@ -26,14 +26,14 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
       return "";
     }
     let labels: number[] = [];
-    let datasets: Array<{label: string, data: number[]}> = []
-    data.forEach((value: {time: number, humidity: number, temperature: number}[], key: string) => {
-      console.log(key, value);
+    let datasets: Array<{ label: string, data: number[] }> = []
+
+    data.forEach((value: { time: number, humidity: number, temperature: number }[], key: string) => {
       labels = [...labels, ...value.map(row => row.time)]
-      datasets.push({label: "Humidity" + getExtraLabel(key), data: value.map((row) => row.humidity)})
-      datasets.push({label: "Temperature" + getExtraLabel(key), data: value.map((row) => row.temperature)})
+      datasets.push({ label: "Humidity" + getExtraLabel(key), data: value.map((row) => row.humidity) })
+      datasets.push({ label: "Temperature" + getExtraLabel(key), data: value.map((row) => row.temperature) })
     });
-    
+
     const chartDataObj = {
       chartData: {
         labels,

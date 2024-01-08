@@ -63,8 +63,6 @@ data class LocationAssignements(
     fun save(): HttpStatusCode {
         val db = getDb();
         if (unassignedDevices.size > 0) {
-            
-            System.out.println(getUnassignedDeviceIds());
             db.delete(DeviceLocation, { DeviceLocation.device_id.inList(getUnassignedDeviceIds()) });
         }
         for (location in locations) {
