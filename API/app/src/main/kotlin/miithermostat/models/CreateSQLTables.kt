@@ -75,7 +75,7 @@ fun createTables() {
     --
     -- Add timescaledb on the sensor_data
     --
-    select create_hypertable('sensor_data', 'time', if_not_exists => true);
+    select create_hypertable('sensor_data', 'time', if_not_exists => true, migrate_data => true);
     """
     
     conn.prepareStatement(sensorDataSql).execute()
@@ -98,7 +98,7 @@ fun createTables() {
     --
     -- Add timescaledb on the sensor_data
     --
-    select create_hypertable('sensor_data_with_offset', 'time', if_not_exists => true);
+    select create_hypertable('sensor_data_with_offset', 'time', if_not_exists => true, migrate_data => true);
     """
     
     conn.prepareStatement(sensorDataWithOffsetSql).execute()
