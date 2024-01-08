@@ -89,6 +89,7 @@ fun getAllSensorData(): List<SensorData> {
     val db = getDb()
     return db.from(Conditions).select().orderBy(Conditions.time.asc()).map { row ->
         SensorData(
+                device_id = row[Conditions.device_id]!!,
                 location = row[Conditions.location]!!,
                 temperature_mc = row[Conditions.temperature_mc]!!,
                 humidity_pt = row[Conditions.humidity_pt]!!,
@@ -114,6 +115,7 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
             }
             .map { row ->
                 SensorData(
+                        device_id = row[Conditions.device_id]!!,
                         location = row[Conditions.location]!!,
                         temperature_mc = row[Conditions.temperature_mc]!!,
                         humidity_pt = row[Conditions.humidity_pt]!!,

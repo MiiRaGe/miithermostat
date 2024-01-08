@@ -239,4 +239,23 @@ class ApplicationTest {
         ), data.locations)
         assertEquals(mutableListOf(Device(TEST_DEVICE6), Device(TEST_DEVICE4), Device(TEST_DEVICE5)), data.unassignedDevices)
     }
+
+    @Test
+    fun testLocationDeletionWithAssignedDevices() = testApplication {
+        createTestMeasurements()
+
+        val response = client.delete(String.format("/locations/%s/", TEST_LOCATION2))
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun testLocationDeletionWithoutAssignedDevices() = testApplication {
+        val testLocation = "new location"
+        insertLocation(testLocation)
+
+        val response = client.delete(String.format("/locations/%s/", testLocation))
+
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
 }

@@ -43,6 +43,7 @@ export const AddRoomModal = (props) => {
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500 ">
                                                 <input
+                                                    autofocus
                                                     name="name"
                                                     type="name"
                                                     placeholder="Name"

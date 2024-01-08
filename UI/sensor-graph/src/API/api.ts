@@ -12,8 +12,13 @@ const getLastDayMeasurementsAPIURL = async () => {
     return `${await serverGetBaseUrl()}/measurements/lastday`;
 }
 
-const getRoomsAPIURL = async () =>{
-    return `${await serverGetBaseUrl()}/locations/`
+const getRoomsAPIURL = async (id?: String) =>{
+    const baseApi = await serverGetBaseUrl()
+    let url = `${baseApi}/locations/`
+    if (id != null) {
+        url += `${id}/`
+    }
+    return url
 }
 
 const getDevicesAPIURL = async () => {

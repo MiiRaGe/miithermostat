@@ -11,6 +11,7 @@ import kotlinx.datetime.Clock.System
 import kotlinx.datetime.DateTimeUnit
 import kotlin.time.Duration.Companion.days
 import kotlin.time.days
+import org.postgresql.util.PSQLException
 
 fun Application.configureRouting() {
     routing {
@@ -88,6 +89,18 @@ fun Application.configureRouting() {
             call.respondText("", status = statusCode)
         }
 
+        delete("/locations/{location}/") {
+            val location = call.parameters["location"]!!
+            try {
+                deleteLocation(location)
+                call.respondText("", status = HttpStatusCode.OK)
+            } catch (e: PSQLException) {
+                // Foreign key constraints
+                call.respondText("Location is still assigned", status = HttpStatusCode.BadRequest)
+            }
+            
+        }
+
         post("/locations/{location}/devices/") {
             val location = call.parameters["location"]!!
             val device = call.receive<Device>()
@@ -108,6 +121,12 @@ fun Application.configureRouting() {
 
         get("/assignements/") {
             call.respond<LocationAssignements>(getLocationAssignements())
+        }
+
+        post("/assignements/") {
+            val locationAssignements = call.receive<LocationAssignements>()
+            val responseCode = locationAssignements.save()
+            call.respondText("OK", status = responseCode)
         }
     }
 }

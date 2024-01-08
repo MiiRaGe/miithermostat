@@ -9,10 +9,20 @@ export function routeData() {
     const response = await fetch(await getLastDayMeasurementsAPIURL());
     let measurements = await response.json() as Measurements;
 
-    const graphMap: Map<string, Array<{ time: number, humidity: number, temperature: number }>> = new Map();
-    for (const { location, time, humidity_pt, temperature_mc } of measurements) {
-      if (graphMap.get(location) == undefined) graphMap.set(location, new Array());
-      graphMap.get(location)?.push({
+    const graphMap: Map<string, Map<string, Array<{ time: number, humidity: number, temperature: number, device_id: string }>>> = new Map();
+    for (const { location, time, device_id, humidity_pt, temperature_mc } of measurements) {
+      let locationData = graphMap.get(location);
+      if (locationData == undefined) {
+        locationData = new Map();
+        graphMap.set(location, locationData);
+      }
+      let devicegroup = locationData.get(device_id);
+      if (devicegroup == undefined) {
+        devicegroup = [];
+        locationData.set(device_id, devicegroup);
+      }
+      devicegroup.push({
+        device_id,
         time: new Date(time).getTime(),
         humidity: humidity_pt / 10,
         temperature: temperature_mc / 10,

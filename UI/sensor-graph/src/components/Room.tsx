@@ -10,18 +10,18 @@ const Room = (props: { room: Room }) => {
             </div>
             <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
                 <Show when={room.data}>
-                    <div class="flex justify-between gap-x-4 py-3">
+                    {(data) => <><div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-black text-sm font-bold">Temperature</dt>
-                        <dd class="text-gray-500 text-sm">{room.data.temperature_mc / 10}°C</dd>
+                        <dd class="text-gray-500 text-sm">{data().temperature_mc / 10}°C</dd>
                     </div>
                     <div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-black text-sm font-bold">Humidity</dt>
-                        <dd class="text-gray-500 text-sm">{room.data.humidity_pt / 10}%</dd>
+                        <dd class="text-gray-500 text-sm">{data().humidity_pt / 10}%</dd>
                     </div>
                     <div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-black text-sm font-bold">Last Alive</dt>
-                        <dd class="text-gray-500 text-sm">{DateTime.fromISO(room.data.time).toRelative()}</dd>
-                    </div>
+                        <dd class="text-gray-500 text-sm">{DateTime.fromISO(data().time).toRelative()}</dd>
+                    </div></>}
                 </Show>
                 <div class="flex justify-between gap-x-4 py-3">
                     <dt class="text-black text-sm font-bold">Devices</dt>

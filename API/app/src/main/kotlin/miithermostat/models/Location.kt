@@ -68,3 +68,10 @@ fun getAllLocations(): List<Location> {
     }
     return locationMap.values.sortedBy { it -> it.name }
 }
+
+fun deleteLocation(locationName: String) {
+    val db = getDb()
+    db.delete(Conditions) { Conditions.location eq locationName }
+    db.delete(RawConditions) { RawConditions.location eq locationName }
+    db.delete(Locations) { Locations.name eq locationName }
+}

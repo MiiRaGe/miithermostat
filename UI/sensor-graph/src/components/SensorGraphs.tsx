@@ -1,4 +1,4 @@
-import { onMount } from 'solid-js'
+import { onMount, runWithOwner } from 'solid-js'
 import { For } from "solid-js";
 import { Chart, Title, Tooltip, Legend, Colors, TimeScale } from 'chart.js'
 import { Line } from 'solid-chartjs'
@@ -18,17 +18,26 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
 
   const chartDataObjs = [];
   for (const { location, data } of props.data) {
+    const hasMoreThanOneDevice = data.size > 1;
+    const getExtraLabel = (device_id: string) => {
+      if (hasMoreThanOneDevice) {
+        return ` (${device_id})`;
+      }
+      return "";
+    }
+    let labels: number[] = [];
+    let datasets: Array<{label: string, data: number[]}> = []
+    data.forEach((value: {time: number, humidity: number, temperature: number}[], key: string) => {
+      console.log(key, value);
+      labels = [...labels, ...value.map(row => row.time)]
+      datasets.push({label: "Humidity" + getExtraLabel(key), data: value.map((row) => row.humidity)})
+      datasets.push({label: "Temperature" + getExtraLabel(key), data: value.map((row) => row.temperature)})
+    });
+    
     const chartDataObj = {
       chartData: {
-        labels: data.map(row => row.time),
-        datasets: [{
-          label: "Humidity",
-          data: data.map(row => row.humidity),
-        },
-        {
-          label: "Temperature",
-          data: data.map(row => row.temperature),
-        },]
+        labels,
+        datasets,
       },
       chartOptions: {
         spanGaps: 120000,
@@ -69,7 +78,7 @@ const SensorGraphs = (props: { data: GraphData | undefined }) => {
           },
           y: {
             suggestedMin: 0,
-            suggestedMax: 60,
+            suggestedMax: 55,
           }
         },
         maintainAspectRatio: false,

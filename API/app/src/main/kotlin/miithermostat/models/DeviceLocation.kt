@@ -56,7 +56,25 @@ fun getDevicesByLocation(location: String): List<Device> {
 data class LocationAssignements(
     val unassignedDevices: MutableList<Device> = mutableListOf(),
     val locations: MutableList<Location> = mutableListOf()
-)
+) {
+    fun getUnassignedDeviceIds(): List<String> {
+        return unassignedDevices.map { device -> device.id };
+    }
+    fun save(): HttpStatusCode {
+        val db = getDb();
+        if (unassignedDevices.size > 0) {
+            
+            System.out.println(getUnassignedDeviceIds());
+            db.delete(DeviceLocation, { DeviceLocation.device_id.inList(getUnassignedDeviceIds()) });
+        }
+        for (location in locations) {
+            for (device in location.devices) {
+                insertDeviceLocation(device.id, location.name)    
+            }
+        }
+        return HttpStatusCode.OK;
+    }
+}
 
 fun getLocationAssignements(): LocationAssignements {
     val locationMap: MutableMap<String, Location> = mutableMapOf()
