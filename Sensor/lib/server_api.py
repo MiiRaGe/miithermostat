@@ -2,7 +2,6 @@ import adafruit_requests
 import socketpool
 import wifi
 
-from adafruit_datetime import datetime
 from time import sleep
 
 from local_secrets import SECRETS, WIFI_PASSWORD, WIFI_SSID, API_URL
@@ -60,8 +59,6 @@ def get_rooms_data():
     response.close()
     for room in rooms_data:
         try:
-            dt_string = room["data"]["time"]
-            room["data"]["time"] = datetime.fromisoformat(dt_string.replace('Z', ''))
             room["data"]["temperature"] = str(room["data"]["temperature_mc"] / 10)
             room["data"]["humidity"] = str(room["data"]["humidity_pt"] / 10)
         except KeyError:
