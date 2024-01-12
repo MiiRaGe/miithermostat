@@ -6,6 +6,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.*
 import miithermostat.getDb
 import miithermostat.tools.convert
+import miithermostat.tools.prettyDate
 import org.postgresql.util.PSQLException
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
@@ -54,6 +55,14 @@ data class SensorData(
         return HttpStatusCode.Created
     }
 }
+
+@Serializable
+data class SensorDataSnapshot(
+        val temperature_mc: Short,
+        val humidity_pt: Short,
+        val time: Instant,
+        val relative_time: String,
+)
 
 @Serializable
 data class DeviceOffset(
@@ -127,8 +136,8 @@ fun getSensorData(from: Instant, to: Instant? = null, location: String? = null):
             }
 }
 
-fun getLatestSensorDataByLocation(): Map<String, SensorData> {
-    val sensorMap: MutableMap<String, SensorData> = mutableMapOf()
+fun getLatestSensorDataByLocation(): Map<String, SensorDataSnapshot> {
+    val sensorMap: MutableMap<String, SensorDataSnapshot> = mutableMapOf()
     val db = getDb()
     db.useConnection { conn ->
             val sql =
@@ -148,10 +157,11 @@ fun getLatestSensorDataByLocation(): Map<String, SensorData> {
                         )
                 sensorMap.put(
                         location,
-                        SensorData(
+                        SensorDataSnapshot(
                                 temperature_mc = temperature_mc,
                                 humidity_pt = humidity_pt,
-                                time = time
+                                time = time,
+                                relative_time = prettyDate(time)
                         )
                 )
             }

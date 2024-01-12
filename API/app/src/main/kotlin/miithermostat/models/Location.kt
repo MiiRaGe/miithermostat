@@ -12,7 +12,7 @@ import org.postgresql.util.PSQLException
 data class Location(
         val name: String,
         val devices: MutableList<Device> = mutableListOf(),
-        var data: SensorData? = null
+        var data: SensorDataSnapshot? = null
 ) {
     fun addDevice(device: Device) {
         devices.add(device)
