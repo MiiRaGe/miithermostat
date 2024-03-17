@@ -10,11 +10,11 @@ val postgresql_driver_version: String by project
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
+    id("org.jetbrains.kotlin.jvm")
+    kotlin("plugin.serialization")
 
-    id("com.google.protobuf") version "0.9.4"
-
+    id("com.google.protobuf")
+    
     // Apply the application plugin to add support for building a CLI application in Java.
     application
 }
@@ -26,33 +26,33 @@ repositories {
 
 dependencies {
     // Use the Kotlin JUnit 5 integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation(Kotlin.test.junit5)
 
     // Use the JUnit 5 integration.
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation(Testing.junit.jupiter.engine)
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:_")
 
     // This dependency is used by the application.
-    implementation("com.google.guava:guava:32.1.1-jre")
+    implementation("com.google.guava:guava:_")
 
-    implementation("io.ktor:ktor-client-jvm:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-status-pages-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-default-headers-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
+    implementation("io.ktor:ktor-client-jvm:_")
+    implementation(Ktor.plugins.serialization.kotlinx.json)
+    implementation("io.ktor:ktor-server-core-jvm:_")
+    implementation("io.ktor:ktor-server-netty-jvm:_")
+    implementation("io.ktor:ktor-server-status-pages-jvm:_")
+    implementation("io.ktor:ktor-server-default-headers-jvm:_")
+    implementation(Ktor.server.contentNegotiation)
+    implementation("io.ktor:ktor-server-tests-jvm:_")
 
-    implementation("org.ktorm:ktorm-core:$ktorm_version")
-    implementation("org.ktorm:ktorm-support-postgresql:$ktorm_version")
+    implementation("org.ktorm:ktorm-core:_")
+    implementation("org.ktorm:ktorm-support-postgresql:_")
     
-    implementation("org.postgresql:postgresql:$postgresql_driver_version")
+    implementation("org.postgresql:postgresql:_")
     
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:_")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    implementation(KotlinX.datetime)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

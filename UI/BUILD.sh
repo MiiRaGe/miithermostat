@@ -1,14 +1,6 @@
 #!/bin/sh
-#
-# An example hook script to verify what is about to be committed.
-# Called by "git commit" with no arguments.  The hook should
-# exit with non-zero status after issuing an appropriate message if
-# it wants to stop the commit.
-#
-# To enable this hook, rename this file to "pre-commit".
-rm server.tar.gz || true
+
 cd sensor-graph
 npm run build
-tar -zcf ../server.tar.gz dist
 cd ..
-git add server.tar.gz
+docker buildx build --platform linux/arm64 -t miirage/rpi-cluster:miithermostat-ui-$1 -t miirage/rpi-cluster:miithermostat-ui-latest --push .

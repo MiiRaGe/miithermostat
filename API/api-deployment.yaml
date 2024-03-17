@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: miithermostat
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: miirage/rpi-cluster:miithermostat-api-1.0.0
+        ports:
+        - containerPort: 8080
+          name: api-web
+        env:
+          - name: DB_HOST
+            value: 'postgresql-primary.postgres'
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: miithermostat-secret-config
+                key: name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: miithermostat-secret-config
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: miithermostat-secret-config
+                key: password
+      imagePullSecrets:
+      - name: regcred

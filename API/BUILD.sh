@@ -1,5 +1,4 @@
 #! /bin/sh
 
 gradle build
-cp app/build/distributions/app.tar miithermostat-latest.tar
-git add miithermostat-latest.tar
+docker buildx build --platform linux/arm64 -t miirage/rpi-cluster:miithermostat-api-$1 -t miirage/rpi-cluster:miithermostat-api-latest --push .

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+  namespace: miithermostat
+  labels:
+    app: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - name: ui
+        image: miirage/rpi-cluster:miithermostat-ui-1.0.0
+        ports:
+        - containerPort: 3000
+          name: ui-web
+        env:
+        - name: API_URL
+          value: http://api.miithermostat:8080
+      imagePullSecrets:
+      - name: regcred
