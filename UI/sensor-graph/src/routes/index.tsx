@@ -1,10 +1,10 @@
-import { Show, createResource } from "solid-js";
+import { createResource, Show } from "solid-js";
 import { SensorGraphs } from "~/components/SensorGraphs";
-import { getLastDayMeasurementsAPIURL } from "~/API/api";
+import { getLastDayMeasurements } from "~/API/api";
+import { createAsync } from "@solidjs/router";
 
 async function getGraphData() {
-    const response = await fetch(await getLastDayMeasurementsAPIURL());
-    let measurements = await response.json() as Measurements;
+    let measurements = await getLastDayMeasurements();
     
     const graphMap: Map<string, Map<string, Array<{ time: number, humidity: number, temperature: number, device_id: string }>>> = new Map();
     for (const { location, time, device_id, humidity_pt, temperature_mc } of measurements) {
@@ -34,7 +34,7 @@ async function getGraphData() {
   };
 
 export default function Home() {
-  const [graphData] = createResource("graphData", getGraphData);
+  const [graphData] = createResource(() => getGraphData());
   return (
     <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <Show when={graphData()} fallback={<div>Loading...</div>}>

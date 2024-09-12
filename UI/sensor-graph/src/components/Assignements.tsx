@@ -13,7 +13,7 @@ import { Icon } from "solid-heroicons";
 import { trash, plus } from "solid-heroicons/solid";
 import { createStore, reconcile } from "solid-js/store";
 import { AddRoomModal } from "./AddRoomModal";
-import { getAssignementsAPIURL, getRoomsAPIURL } from "~/API/api";
+import { deleteRoom } from "~/API/api";
 import { assign } from "solid-js/web";
 
 const DraggableDevice = (props: { id: number, label: JSXElement }) => {
@@ -38,10 +38,8 @@ const Room = (props: { id: string, items: number[], getLabel: (id: number) => JS
   let extraClasses = props.id == "unassigned" ? "italic text-gray-500" : "text-gray-900";
 
   const deleteLocation = async (name: string) => {
-    const response = await fetch(await getRoomsAPIURL(name), {
-      method: 'DELETE',
-    });
-    if (response.ok) {
+    const ok = await deleteRoom(name);
+    if (ok) {
       props.refetch()
     }
   }
@@ -211,14 +209,6 @@ const Assignements = (props) => {
           }
         }
       }
-      getAssignementsAPIURL()
-        .then((url: string) => {
-          fetch(`${url}`, {
-            method: 'POST',
-            body: JSON.stringify(assignements),
-            headers: { 'Content-Type': 'application/json' }
-          })
-        });
     }
   };
 

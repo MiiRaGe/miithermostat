@@ -1,4 +1,4 @@
-/// <reference types="solid-start/env" />
+/// <reference types="@solidjs/start/env" />
 
 
 declare type Device = { id: string, location?: string }

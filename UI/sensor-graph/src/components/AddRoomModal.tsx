@@ -1,7 +1,6 @@
 import { Portal } from "solid-js/web";
 import { Show, batch, createSignal } from "solid-js";
-import { getRoomsAPIURL } from "~/API/api";
-import { refetchRouteData } from "solid-start";
+import { createRoom } from "~/API/api";
 
 export const AddRoomModal = (props) => {
     const [name, setName] = createSignal("")
@@ -10,14 +9,10 @@ export const AddRoomModal = (props) => {
 
     const submitForm = async () => {
         setDisabled(true)
-        const response = await fetch(await getRoomsAPIURL(), {
-            method: 'POST',
-            body: JSON.stringify({name: name()}),
-            headers: {'Content-Type': 'application/json'}
-        });
-        if (!response.ok) {
+        const {ok, text} = await createRoom(name())
+        if (!ok) {
             setDisabled(false)
-            setError(`${response.text()}`)
+            setError(`${text}`)
         } else {
             batch(() => {
                 setName("")
