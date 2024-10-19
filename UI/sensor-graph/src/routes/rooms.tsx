@@ -1,6 +1,6 @@
 import { createResource, Show } from "solid-js";
 import { Rooms } from "~/components/Rooms";
-import { getRooms } from "~/API/api";
+import { getRooms } from "~/API/rooms";
 import { createAsync } from "@solidjs/router";
 
 export default function roomsPage() {

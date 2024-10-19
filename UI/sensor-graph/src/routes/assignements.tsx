@@ -1,6 +1,6 @@
 import { Show, createResource } from "solid-js";
 import { Assignements } from "~/components/Assignements";
-import { getAssignements } from "~/API/api";
+import { getAssignements } from "~/API/assignements";
 
 export default function assignementsPage() {
   const [serverDevices, {mutate, refetch}] = createResource(getAssignements)

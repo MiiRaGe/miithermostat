@@ -13,7 +13,8 @@ import { Icon } from "solid-heroicons";
 import { trash, plus } from "solid-heroicons/solid";
 import { createStore, reconcile } from "solid-js/store";
 import { AddRoomModal } from "./AddRoomModal";
-import { deleteRoom } from "~/API/api";
+import { deleteRoom } from "~/API/rooms";
+import { saveAssignements } from "~/API/assignements";
 import { assign } from "solid-js/web";
 
 const DraggableDevice = (props: { id: number, label: JSXElement }) => {
@@ -202,13 +203,10 @@ const Assignements = (props) => {
             assignements.unassignedDevices.push({ id: deviceId })
           }
         } else {
-          for (let id of value) {
-            let deviceId = labels.get(id)
-            if (deviceId == undefined) continue
-            assignements.locations.push({ name: key, devices: value.map((id) => ({ id: labels.get(id) as string })) })
-          }
+          assignements.locations.push({ name: key, devices: value.map((id) => ({ id: labels.get(id) as string })) })
         }
       }
+      saveAssignements(assignements).then(data => console.log(data))
     }
   };
 

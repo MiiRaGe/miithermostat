@@ -1,6 +1,6 @@
 import { createResource, Show } from "solid-js";
 import { SensorGraphs } from "~/components/SensorGraphs";
-import { getLastDayMeasurements } from "~/API/api";
+import { getLastDayMeasurements } from "~/API/measurements";
 import { createAsync } from "@solidjs/router";
 
 async function getGraphData() {

@@ -5,10 +5,10 @@ ENV TZ=Europe/Stockholm
 
 SHELL ["/bin/sh", "-c"]
 
-COPY ./sensor-graph/dist /app/
+COPY ./sensor-graph/.output/ /app/
 
 WORKDIR /app
 
 EXPOSE 3000
 
-CMD ["/app/server.js"]
+CMD ["node", "/app/server/index.mjs"]

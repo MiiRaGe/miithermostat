@@ -1,6 +1,6 @@
 import { Portal } from "solid-js/web";
 import { Show, batch, createSignal } from "solid-js";
-import { createRoom } from "~/API/api";
+import { createRoom } from "~/API/rooms";
 
 export const AddRoomModal = (props) => {
     const [name, setName] = createSignal("")
